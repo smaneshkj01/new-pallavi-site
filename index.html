@@ -20,6 +20,14 @@
             --secondary-hex: #0f172a;
         }
 
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body.editing .editable {
             outline: 2px dashed rgba(14, 165, 233, 0.6);
             outline-offset: 2px;
@@ -53,6 +61,104 @@
 
         #image-popup.show {
             display: flex;
+        }
+
+        /* Gradient backgrounds */
+        .gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .gradient-accent {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .gradient-light {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        /* Card animations */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Section titles */
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-hex), rgba(239, 68, 68, 0.3));
+            border-radius: 2px;
+        }
+
+        /* Badge styles */
+        .badge-shine {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .badge-shine:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stat counter animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Navbar enhancements */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-hex);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Button enhancements */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-hex), #d84040);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
         }
     </style>
 </head>
@@ -356,25 +462,32 @@
 
             events.forEach((ev, index) => {
                 const card = document.createElement("div");
-                card.className = "bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow duration-300";
+                card.className = "card-hover bg-white overflow-hidden shadow-lg rounded-xl hover:shadow-2xl border-t-4 transition-all";
+                card.style.borderTopColor = "var(--primary-hex)";
 
                 const iconClass = ev.iconClass || "fa-regular fa-calendar";
                 const badgeClass = ev.badgeClass || "bg-gray-500 text-white";
 
                 card.innerHTML = `
-                    <div class="px-4 py-5 sm:p-6">
-                        <div class="flex items-center mb-4">
-                            <i class="${iconClass} text-2xl mr-3 title-color" style="color: var(--primary-hex)"></i>
-                            <h3 class="editable text-lg leading-6 font-medium text-gray-900"
-                                data-section="events"
-                                data-type="event"
-                                data-index="${index}"
-                                data-field="title"
-                                ${isEditing ? 'contenteditable="true"' : ''}>
-                                ${ev.title || ""}
-                            </h3>
+                    <div class="px-6 py-8 sm:p-8">
+                        <div class="flex items-start mb-4">
+                            <div class="flex-shrink-0">
+                                <div class="flex items-center justify-center h-12 w-12 rounded-lg text-white" style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                                    <i class="${iconClass}"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="editable text-lg leading-6 font-bold text-gray-900"
+                                    data-section="events"
+                                    data-type="event"
+                                    data-index="${index}"
+                                    data-field="title"
+                                    ${isEditing ? 'contenteditable="true"' : ''}>
+                                    ${ev.title || ""}
+                                </h3>
+                            </div>
                         </div>
-                        <p class="editable text-gray-500"
+                        <p class="editable text-gray-600 text-sm leading-relaxed mb-4"
                            data-section="events"
                            data-type="event"
                            data-index="${index}"
@@ -382,23 +495,23 @@
                            ${isEditing ? 'contenteditable="true"' : ''}>
                             ${ev.desc || ""}
                         </p>
-                        <div class="mt-4 flex items-center justify-between">
-                            <span class="editable inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}"
+                        <div class="mt-6 flex items-center justify-between">
+                            <span class="editable inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${badgeClass} badge-shine"
                                   data-section="events"
                                   data-type="event"
                                   data-index="${index}"
                                   data-field="date"
                                   ${isEditing ? 'contenteditable="true"' : ''}>
-                                ${ev.date || ""}
+                                <i class="fa-solid fa-calendar mr-2"></i>${ev.date || ""}
                             </span>
                             <div class="admin-image-controls space-x-2 text-xs">
                                 <button type="button"
-                                    class="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+                                    class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                     onclick="window.editEventIcon(${index})">
                                     <i class="fa-solid fa-icons mr-1"></i>Icon
                                 </button>
                                 <button type="button"
-                                    class="px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+                                    class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
                                     onclick="window.removeEvent(${index})">
                                     <i class="fa-solid fa-trash mr-1"></i>Remove
                                 </button>
@@ -422,25 +535,26 @@
 
             gallery.forEach((url, index) => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "group h-64 bg-gray-200 rounded-lg overflow-hidden relative";
+                wrapper.className = "card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
                 wrapper.innerHTML = `
                     <img
-                        class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                         src="${url}"
                         alt="Gallery ${index + 1}"
                         onclick="openImagePopup('${url.replace(/'/g, "\\'")}')"
                         data-section="gallery"
                         data-index="${index}"
                     >
-                    <div class="admin-image-controls absolute bottom-2 right-2 space-x-2 text-xs">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button type="button"
-                            class="px-2 py-1 rounded bg-black/60 text-white hover:bg-black/80"
+                            class="px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                             onclick="window.editGalleryImage(${index})">
                             <i class="fa-solid fa-pen mr-1"></i>Edit
                         </button>
                         <button type="button"
-                            class="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                            class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
                             onclick="window.removeGalleryImage(${index})">
                             <i class="fa-solid fa-trash mr-1"></i>Remove
                         </button>
@@ -889,6 +1003,8 @@
             const usernameInput = document.getElementById("admin-username");
             const passwordInput = document.getElementById("admin-password");
             const loginModal = document.getElementById("login-modal");
+            const loginError = document.getElementById("login-error");
+            const errorText = document.getElementById("error-text");
 
             const username = usernameInput ? usernameInput.value : "";
             const password = passwordInput ? passwordInput.value : "";
@@ -908,11 +1024,14 @@
                 // Clear form
                 if (usernameInput) usernameInput.value = "";
                 if (passwordInput) passwordInput.value = "";
+                if (loginError) loginError.classList.add("hidden");
 
                 window.toggleEditMode();
             } else {
-                const err = document.getElementById("login-error");
-                if (err) err.textContent = "Invalid username or password.";
+                if (loginError) {
+                    loginError.classList.remove("hidden");
+                    errorText.textContent = "Invalid username or password.";
+                }
                 showNotification("Login failed.", "error");
             }
         };
@@ -964,8 +1083,10 @@
         window.closeLoginModal = () => {
             const modal = document.getElementById("login-modal");
             if (modal) modal.style.display = "none";
-            const err = document.getElementById("login-error");
-            if (err) err.textContent = "";
+            const loginError = document.getElementById("login-error");
+            const errorText = document.getElementById("error-text");
+            if (loginError) loginError.classList.add("hidden");
+            if (errorText) errorText.textContent = "";
         };
 
         // ==== APP INIT ====
@@ -1034,36 +1155,36 @@
     </script>
 
     <!-- NAVBAR -->
-    <nav id="navbar" class="bg-gray-900 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300"
-        style="background-color: var(--secondary-hex);">
+    <nav id="navbar" class="bg-gray-900 text-white shadow-xl sticky top-0 z-50 transition-all duration-300"
+        style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
-                    <div class="relative mr-3">
-                        <img id="club-logo" src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+                    <div class="relative mr-4">
+                        <img id="club-logo" src="images/logo.png" alt="Logo" class="h-14 w-auto object-contain filter drop-shadow-lg">
                         <button type="button" onclick="window.uploadLogo()"
-                            class="admin-image-controls absolute -bottom-2 -right-2 bg-white text-gray-800 rounded-full p-1 shadow-md hover:bg-gray-100 text-xs border border-gray-300"
+                            class="admin-image-controls absolute -bottom-2 -right-2 bg-white text-gray-800 rounded-full p-1 shadow-md hover:bg-red-500 hover:text-white text-xs border border-gray-300 transition-all"
                             title="Change Logo">
                             <i class="fa-solid fa-camera"></i>
                         </button>
                     </div>
-                    <span id="club-name" class="editable font-bold text-xl" data-section="general"
-                        data-key="clubName">New Pallavi Arts & Sports Boat Club</span>
+                    <span id="club-name" class="editable font-bold text-lg sm:text-xl bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent" 
+                        data-section="general" data-key="clubName">New Pallavi Arts & Sports Boat Club</span>
                 </div>
                 <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="#home" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
-                        <a href="#about" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">About</a>
-                        <a href="#events" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Events</a>
-                        <a href="#gallery"
-                            class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Gallery</a>
-                        <a href="#contact"
-                            class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    <div class="ml-10 flex items-baseline space-x-1">
+                        <a href="#home" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="#about" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                        <a href="#events" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Events</a>
+                        <a href="#team" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Team</a>
+                        <a href="#testimonials" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Testimonials</a>
+                        <a href="#gallery" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Gallery</a>
+                        <a href="#contact" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Contact</a>
                     </div>
                 </div>
                 <div class="-mr-2 flex md:hidden">
                     <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
-                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors">
                         <i class="fa-solid fa-bars"></i>
                     </button>
                 </div>
@@ -1072,101 +1193,137 @@
 
         <div class="hidden md:hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="#home" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Home</a>
-                <a href="#about" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">About</a>
-                <a href="#events" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Events</a>
-                <a href="#gallery"
-                    class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Gallery</a>
-                <a href="#contact"
-                    class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Contact</a>
+                <a href="#home" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Home</a>
+                <a href="#about" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">About</a>
+                <a href="#events" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Events</a>
+                <a href="#team" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Team</a>
+                <a href="#testimonials" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Testimonials</a>
+                <a href="#gallery" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Gallery</a>
+                <a href="#contact" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Contact</a>
             </div>
         </div>
     </nav>
 
     <!-- HERO -->
-    <header id="home" class="relative text-white transition-colors duration-300"
-        style="background-color: var(--secondary-hex);">
-        <div class="absolute inset-0 overflow-hidden">
+    <header id="home" class="relative text-white overflow-hidden"
+        style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
+        <div class="absolute inset-0 overflow-hidden opacity-40">
             <img id="hero-bg-img" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920"
-                alt="Boat Race Background" class="w-full h-full object-cover opacity-30">
+                alt="Boat Race Background" class="w-full h-full object-cover">
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(239, 68, 68, 0.3));"></div>
         </div>
         <!-- Hero image edit button -->
         <div class="admin-image-controls absolute top-4 right-4 z-10">
             <button type="button" onclick="window.uploadHeroImage()"
-                class="px-3 py-2 rounded bg-black/60 text-white hover:bg-black/80 text-sm">
+                class="px-3 py-2 rounded bg-black/60 text-white hover:bg-red-600 text-sm transition-colors">
                 <i class="fa-solid fa-camera mr-1"></i>Change Hero Image
             </button>
         </div>
         <div
             class="relative max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center h-[60vh] justify-center">
-            <h1 class="editable text-4xl sm:text-6xl font-extrabold tracking-tight" data-section="general"
-                data-key="heroTitle">New Pallavi Arts & Sports Boat Club</h1>
-            <p class="editable mt-4 text-xl sm:text-2xl text-gray-200" data-section="general" data-key="heroSubtitle">
-                Since 1983</p>
-            <a href="#events"
-                class="mt-8 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:opacity-90 transition-all transform hover:scale-105"
-                style="background-color: var(--primary-hex);">
-                View Events
-            </a>
+            <div class="mb-8 animate-in" style="animation-delay: 0.1s;">
+                <span class="inline-block px-4 py-2 rounded-full bg-red-500/20 text-red-200 text-sm font-semibold border border-red-400/30">
+                    <i class="fa-solid fa-star mr-2"></i>Since 1983
+                </span>
+            </div>
+            <h1 class="editable text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight" 
+                data-section="general" data-key="heroTitle"
+                style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">New Pallavi Arts & Sports Boat Club</h1>
+            <p class="editable mt-6 text-xl sm:text-2xl text-gray-100 max-w-2xl" 
+                data-section="general" data-key="heroSubtitle"
+                style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">Riding the Waves of Tradition</p>
+            <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#events"
+                    class="btn-primary text-white font-bold py-4 px-10 rounded-lg shadow-lg hover:shadow-2xl text-lg transition-all transform hover:scale-105"
+                    style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                    <i class="fa-solid fa-calendar-check mr-2"></i>View Events
+                </a>
+                <a href="#contact"
+                    class="bg-white/20 backdrop-blur text-white font-bold py-4 px-10 rounded-lg border-2 border-white hover:bg-white/30 transition-all transform hover:scale-105 text-lg"
+                    style="">
+                    <i class="fa-solid fa-envelope mr-2"></i>Get In Touch
+                </a>
+            </div>
         </div>
     </header>
 
     <!-- ABOUT -->
-    <section id="about" class="py-16 bg-white">
+    <section id="about" class="py-20 bg-gradient-to-br from-white to-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center">
+            <div class="lg:text-center mb-12">
                 <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                    About Us
+                    <i class="fa-solid fa-info-circle mr-2"></i>About Us
                 </h2>
-                <p class="editable mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl"
+                <p class="editable mt-2 text-4xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-5xl section-title"
                     data-section="about" data-key="aboutTitle">A Legacy of Excellence</p>
-                <p class="editable mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto" data-section="about"
-                    data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing
-                    premier boat races and cultural events. Our mission is to preserve tradition while fostering
-                    athletic talent in our community.</p>
+                <p class="editable mt-6 max-w-3xl text-lg text-gray-600 lg:mx-auto" 
+                    data-section="about" data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing premier boat races and cultural events. Our mission is to preserve tradition while fostering athletic talent in our community.</p>
             </div>
 
-            <div class="mt-10">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4" style="border-top-color: var(--primary-hex);">
+                    <div class="text-4xl font-bold" style="color: var(--primary-hex);">40+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Years of Legacy</p>
+                </div>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4" style="border-top-color: #3b82f6;">
+                    <div class="text-4xl font-bold" style="color: #3b82f6;">500+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Active Members</p>
+                </div>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4" style="border-top-color: #22c55e;">
+                    <div class="text-4xl font-bold" style="color: #22c55e;">100+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Annual Events</p>
+                </div>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4" style="border-top-color: #f59e0b;">
+                    <div class="text-4xl font-bold" style="color: #f59e0b;">25+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Trophies Won</p>
+                </div>
+            </div>
+
+            <div class="mt-12">
                 <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-                    <div class="relative">
+                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
                         <dt>
-                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
-                                style="background-color: var(--primary-hex);">
-                                <i class="fa-solid fa-trophy"></i>
+                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                <i class="fa-solid fa-trophy text-xl"></i>
                             </div>
-                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                            <p class="text-lg leading-6 font-bold text-gray-900">
                                 Championships
                             </p>
                         </dt>
-                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat1">
+                        <dd class="editable mt-3 text-base text-gray-600" 
+                            data-section="about" data-key="feat1">
                             Winners of multiple regional boat racing regattas.</dd>
                     </div>
 
-                    <div class="relative">
+                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
                         <dt>
-                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
-                                style="background-color: var(--primary-hex);">
-                                <i class="fa-solid fa-users"></i>
+                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                <i class="fa-solid fa-users text-xl"></i>
                             </div>
-                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                            <p class="text-lg leading-6 font-bold text-gray-900">
                                 Community
                             </p>
                         </dt>
-                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat2">
+                        <dd class="editable mt-3 text-base text-gray-600" 
+                            data-section="about" data-key="feat2">
                             Over 500 active members dedicated to arts and sports.</dd>
                     </div>
 
-                    <div class="relative">
+                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
                         <dt>
-                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
-                                style="background-color: var(--primary-hex);">
-                                <i class="fa-solid fa-palette"></i>
+                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                <i class="fa-solid fa-palette text-xl"></i>
                             </div>
-                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                            <p class="text-lg leading-6 font-bold text-gray-900">
                                 Arts & Culture
                             </p>
                         </dt>
-                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat3">
+                        <dd class="editable mt-3 text-base text-gray-600" 
+                            data-section="about" data-key="feat3">
                             Promoting local art forms through annual exhibitions.</dd>
                     </div>
                 </dl>
@@ -1175,14 +1332,19 @@
     </section>
 
     <!-- EVENTS -->
-    <section id="events" class="py-16 bg-gray-50">
+    <section id="events" class="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-3xl font-extrabold text-gray-900">
-                    Upcoming Events
-                </h2>
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                <div>
+                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                        <i class="fa-solid fa-calendar mr-2"></i>Upcoming Events
+                    </h2>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                        What's Coming Next?
+                    </p>
+                </div>
                 <button type="button" onclick="window.addEvent()"
-                    class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100"
+                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
                     title="Add new event">
                     <i class="fa-solid fa-plus mr-2"></i> Add Event
                 </button>
@@ -1191,72 +1353,268 @@
         </div>
     </section>
 
-    <!-- GALLERY -->
-    <section id="gallery" class="py-16 bg-white">
+    <!-- TEAM SECTION -->
+    <section id="team" class="py-20 bg-gradient-to-br from-slate-50 to-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-3xl font-extrabold text-gray-900">Gallery</h2>
+            <div class="text-center mb-12">
+                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                    <i class="fa-solid fa-users-line mr-2"></i>Our Team
+                </h2>
+                <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                    Meet Our Leadership
+                </p>
+                <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
+                    <div class="h-48 bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center">
+                        <i class="fa-solid fa-user-tie text-6xl text-white/30"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-bold text-gray-900">Rajesh Kumar</h3>
+                        <p class="text-sm font-semibold mt-1" style="color: var(--primary-hex);">President</p>
+                        <p class="text-gray-600 text-sm mt-3">20 years of experience in boat racing</p>
+                    </div>
+                </div>
+                <!-- Team Member 2 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
+                    <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-bold text-gray-900">Priya Nair</h3>
+                        <p class="text-sm font-semibold mt-1 text-blue-600;">Vice President</p>
+                        <p class="text-gray-600 text-sm mt-3">Cultural events & arts coordinator</p>
+                    </div>
+                </div>
+                <!-- Team Member 3 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
+                    <div class="h-48 bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center">
+                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-bold text-gray-900">Amit Sharma</h3>
+                        <p class="text-sm font-semibold mt-1 text-green-600;">Treasurer</p>
+                        <p class="text-gray-600 text-sm mt-3">Financial management & operations</p>
+                    </div>
+                </div>
+                <!-- Team Member 4 -->
+                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
+                    <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-lg font-bold text-gray-900">Divya Menon</h3>
+                        <p class="text-sm font-semibold mt-1 text-purple-600;">Events Manager</p>
+                        <p class="text-gray-600 text-sm mt-3">Planning & execution of events</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section id="testimonials" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                    <i class="fa-solid fa-star mr-2"></i>What People Say
+                </h2>
+                <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                    Member Testimonials
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="card-hover bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4" style="border-left-color: var(--primary-hex);">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4 italic">"Being part of this club has transformed my life. The experience, the people, and the traditions are incredible. Highly recommended!"</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center text-white font-bold">
+                            VK
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-bold text-gray-900">Vikram Kumar</p>
+                            <p class="text-sm text-gray-600">Racing Champion</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonial 2 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 border-blue-500">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4 italic">"The cultural events here are world-class. I've learned so much about our heritage while making amazing friends."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
+                            SA
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-bold text-gray-900">Sneha Ansari</p>
+                            <p class="text-sm text-gray-600">Performer & Artist</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Testimonial 3 -->
+                <div class="card-hover bg-gradient-to-br from-green-50 to-teal-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 border-green-500">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4 italic">"A supportive community that values both tradition and progress. The management is excellent and always open to new ideas."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                            RV
+                        </div>
+                        <div class="ml-4">
+                            <p class="font-bold text-gray-900">Rohan Verma</p>
+                            <p class="text-sm text-gray-600">Member & Sports Coach</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                <div>
+                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                        <i class="fa-solid fa-images mr-2"></i>Photo Gallery
+                    </h2>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                        Memories & Moments
+                    </p>
+                </div>
                 <button type="button" onclick="window.addGalleryImage()"
-                    class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100"
+                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
                     title="Add new gallery image">
                     <i class="fa-solid fa-plus mr-2"></i> Add Image
                 </button>
             </div>
-            <p class="text-sm text-gray-500 mb-6">
-                Click any image to view it larger.
+            <p class="text-gray-600 mb-8 text-center">
+                Click any image to view it in full size • <i class="fa-solid fa-mouse mr-1"></i>Hover to see more options
             </p>
-            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
         </div>
     </section>
 
     <!-- CONTACT -->
-    <section id="contact" class="py-16 text-white transition-colors duration-300"
-        style="background-color: var(--secondary-hex)">
+    <section id="contact" class="py-20 text-white transition-colors duration-300"
+        style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-base font-semibold tracking-wide uppercase text-red-400">
+                    <i class="fa-solid fa-phone mr-2"></i>Get in Touch
+                </h2>
+                <p class="text-4xl font-extrabold mt-2">Let's Connect</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 mb-12">
+                <div class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                    <i class="fa-solid fa-map-pin text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                    <h3 class="text-xl font-bold mb-2">Location</h3>
+                    <p class="editable text-gray-200" data-section="general" data-key="address">New Pallavi Nagar, Palazhi, Kerala, India</p>
+                </div>
+                <div class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                    <i class="fa-solid fa-phone text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                    <h3 class="text-xl font-bold mb-2">Phone</h3>
+                    <p class="editable text-gray-200" data-section="general" data-key="phone">+91 9048079748</p>
+                </div>
+                <div class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                    <i class="fa-solid fa-envelope text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                    <h3 class="text-xl font-bold mb-2">Email</h3>
+                    <p class="editable text-gray-200" data-section="general" data-key="email">contact@newpallaviboatclub.com</p>
+                </div>
+            </div>
+
             <div class="grid md:grid-cols-2 gap-8">
-                <div>
-                    <h2 class="text-3xl font-extrabold mb-6">Get In Touch</h2>
+                <div class="hidden md:block">
+                    <h3 class="text-2xl font-bold mb-6">Operating Hours</h3>
                     <div class="space-y-4">
-                        <div class="flex items-start">
-                            <i class="fa-solid fa-location-dot mt-1 mr-3" style="color: var(--primary-hex);"></i>
-                            <p class="editable" data-section="general" data-key="address">New Pallavi Nagar,
-                                Palazhi, Kerala, India</p>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">Monday - Friday</span>
+                            <span class="text-gray-400">10:00 AM - 6:00 PM</span>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fa-solid fa-phone mr-3" style="color: var(--primary-hex);"></i>
-                            <p class="editable" data-section="general" data-key="phone">+91 9048079748</p>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">Saturday</span>
+                            <span class="text-gray-400">9:00 AM - 7:00 PM</span>
                         </div>
-                        <div class="flex items-center">
-                            <i class="fa-solid fa-envelope mr-3" style="color: var(--primary-hex);"></i>
-                            <p class="editable" data-section="general" data-key="email">
-                                contact@newpallaviboatclub.com</p>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">Sunday</span>
+                            <span class="text-gray-400">10:00 AM - 5:00 PM</span>
                         </div>
                     </div>
+
+                    <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="card-hover bg-white/10 backdrop-blur w-12 h-12 rounded-lg flex items-center justify-center border border-white/20 hover:border-white/40 transition-all">
+                            <i class="fa-brands fa-facebook text-lg"></i>
+                        </a>
+                        <a href="#" class="card-hover bg-white/10 backdrop-blur w-12 h-12 rounded-lg flex items-center justify-center border border-white/20 hover:border-white/40 transition-all">
+                            <i class="fa-brands fa-instagram text-lg"></i>
+                        </a>
+                        <a href="#" class="card-hover bg-white/10 backdrop-blur w-12 h-12 rounded-lg flex items-center justify-center border border-white/20 hover:border-white/40 transition-all">
+                            <i class="fa-brands fa-twitter text-lg"></i>
+                        </a>
+                        <a href="#" class="card-hover bg-white/10 backdrop-blur w-12 h-12 rounded-lg flex items-center justify-center border border-white/20 hover:border-white/40 transition-all">
+                            <i class="fa-brands fa-youtube text-lg"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="bg-white text-gray-800 rounded-lg p-6 shadow-xl">
+
+                <div class="bg-white text-gray-800 rounded-xl p-8 shadow-2xl">
+                    <h3 class="text-2xl font-bold mb-6">Send us a Message</h3>
                     <form onsubmit="handleContactSubmit(event)">
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Name *</label>
                             <input type="text"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
-                                required placeholder="Your Name">
+                                class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-400 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                                required placeholder="Your Full Name">
                         </div>
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Email *</label>
                             <input type="email"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
+                                class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-400 focus:ring-2 focus:ring-red-200 outline-none transition-all"
                                 required placeholder="you@example.com">
                         </div>
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Message</label>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Subject *</label>
+                            <input type="text"
+                                class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-400 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                                required placeholder="How can we help?">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Message *</label>
                             <textarea
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
-                                rows="3" required placeholder="How can we help?"></textarea>
+                                class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-400 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                                rows="4" required placeholder="Tell us more..."></textarea>
                         </div>
                         <button type="submit"
-                            class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md"
-                            style="background-color: var(--primary-hex);">
-                            Send Message
+                            class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg transition-all shadow-md"
+                            style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                            <i class="fa-solid fa-paper-plane mr-2"></i>Send Message
                         </button>
                     </form>
                 </div>
@@ -1265,21 +1623,50 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-gray-900 text-white py-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
-            <div class="mb-4 md:mb-0">
-                © <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.
+    <footer class="bg-gray-900 text-white py-12 border-t-4" style="border-top-color: var(--primary-hex);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4" style="color: var(--primary-hex);">About Us</h3>
+                    <p class="text-gray-400 text-sm">New Pallavi Arts & Sports Boat Club - Preserving tradition while fostering excellence since 1983.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4" style="color: var(--primary-hex);">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                        <li><a href="#events" class="text-gray-400 hover:text-white transition-colors">Events</a></li>
+                        <li><a href="#gallery" class="text-gray-400 hover:text-white transition-colors">Gallery</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4" style="color: var(--primary-hex);">Contact Info</h3>
+                    <p class="text-gray-400 text-sm">
+                        <i class="fa-solid fa-phone mr-2"></i>+91 9048079748
+                    </p>
+                    <p class="text-gray-400 text-sm mt-2">
+                        <i class="fa-solid fa-envelope mr-2"></i>contact@newpallaviboatclub.com
+                    </p>
+                </div>
             </div>
-            <div class="flex space-x-6">
-                <a href="#" class="text-gray-400 hover:text-white">
-                    <i class="fa-brands fa-facebook fa-lg"></i>
-                </a>
-                <a href="#" class="text-gray-400 hover:text-white">
-                    <i class="fa-brands fa-instagram fa-lg"></i>
-                </a>
-                <a href="#" class="text-gray-400 hover:text-white">
-                    <i class="fa-brands fa-twitter fa-lg"></i>
-                </a>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <div class="text-gray-400 text-sm">
+                    © <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.
+                </div>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-red-500 transition-colors duration-300">
+                        <i class="fa-brands fa-facebook text-lg"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-pink-500 transition-colors duration-300">
+                        <i class="fa-brands fa-instagram text-lg"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors duration-300">
+                        <i class="fa-brands fa-twitter text-lg"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-red-600 transition-colors duration-300">
+                        <i class="fa-brands fa-youtube text-lg"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </footer>
@@ -1289,61 +1676,65 @@
     </div>
 
     <!-- FLOATING ADMIN CONTROLS -->
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-2">
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
         <i id="admin-status-icon" title="Not Logged In"
-            class="fa-solid fa-user-lock text-xl p-3 bg-white rounded-full shadow-lg text-red-500 border border-gray-200 cursor-pointer"
+            class="fa-solid fa-user-lock text-2xl p-3 bg-gradient-to-br from-white to-gray-100 rounded-full shadow-xl text-red-500 border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
             onclick="toggleSettings()"></i>
 
-        <div id="settings-panel" class="hidden bg-white p-4 rounded-lg shadow-xl mb-2 w-64 border border-gray-200">
-            <h3 class="font-bold text-gray-900 mb-3">Theme Settings</h3>
+        <div id="settings-panel" class="hidden bg-white p-6 rounded-xl shadow-2xl mb-2 w-80 border-2 border-gray-200">
+            <h3 class="font-bold text-gray-900 mb-4 text-lg flex items-center">
+                <i class="fa-solid fa-palette mr-2" style="color: var(--primary-hex);"></i>Theme Settings
+            </h3>
 
-            <div class="mb-3">
-                <label class="block text-sm text-gray-700 mb-1">Primary Color</label>
-                <div class="flex space-x-2 mb-1">
-                    <button class="w-6 h-6 rounded-full bg-blue-500 ring-offset-1 hover:ring-2"
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">Primary Color</label>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <button class="w-8 h-8 rounded-full bg-blue-500 ring-offset-2 hover:ring-2 ring-blue-300 transition-all"
                         onclick="setPrimaryColor('#3b82f6')"></button>
-                    <button class="w-6 h-6 rounded-full bg-red-500 ring-offset-1 hover:ring-2"
+                    <button class="w-8 h-8 rounded-full bg-red-500 ring-offset-2 hover:ring-2 ring-red-300 transition-all"
                         onclick="setPrimaryColor('#ef4444')"></button>
-                    <button class="w-6 h-6 rounded-full bg-green-500 ring-offset-1 hover:ring-2"
+                    <button class="w-8 h-8 rounded-full bg-green-500 ring-offset-2 hover:ring-2 ring-green-300 transition-all"
                         onclick="setPrimaryColor('#22c55e')"></button>
-                    <button class="w-6 h-6 rounded-full bg-purple-500 ring-offset-1 hover:ring-2"
+                    <button class="w-8 h-8 rounded-full bg-purple-500 ring-offset-2 hover:ring-2 ring-purple-300 transition-all"
                         onclick="setPrimaryColor('#a855f7')"></button>
-                    <button class="w-6 h-6 rounded-full bg-orange-500 ring-offset-1 hover:ring-2"
+                    <button class="w-8 h-8 rounded-full bg-orange-500 ring-offset-2 hover:ring-2 ring-orange-300 transition-all"
                         onclick="setPrimaryColor('#f97316')"></button>
+                    <button class="w-8 h-8 rounded-full bg-pink-500 ring-offset-2 hover:ring-2 ring-pink-300 transition-all"
+                        onclick="setPrimaryColor('#ec4899')"></button>
                 </div>
-                <input type="color" id="custom-primary" class="mt-1 w-full h-8 cursor-pointer"
+                <input type="color" id="custom-primary" class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm"
                     onchange="setPrimaryColor(this.value)" value="#ef4444">
             </div>
 
-            <div class="mb-3">
-                <label class="block text-sm text-gray-700 mb-1">Secondary Color (Dark)</label>
-                <input type="color" id="custom-secondary" class="w-full h-8 cursor-pointer" value="#0f172a"
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Secondary Color (Dark)</label>
+                <input type="color" id="custom-secondary" class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm" value="#0f172a"
                     onchange="setSecondaryColor(this.value)">
             </div>
 
-            <div class="mb-3">
-                <label class="block text-sm text-gray-700 mb-1">Hero Image</label>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
                 <button onclick="uploadHeroImage()"
-                    class="w-full text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded mb-2">
-                    <i class="fa-solid fa-upload mr-1"></i> Upload Image
+                    class="w-full text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 px-3 rounded-lg mb-2 transition-all font-medium">
+                    <i class="fa-solid fa-upload mr-2"></i> Upload Image
                 </button>
                 <input type="text" id="hero-bg-input"
-                    class="w-full border border-gray-300 rounded p-1 text-xs text-gray-800"
+                    class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
                     placeholder="Or paste URL..." onchange="setHeroImage(this.value)">
             </div>
 
-            <button onclick="resetDefaults()" class="text-xs text-red-600 hover:underline mt-2">
-                Reset to Defaults
+            <button onclick="resetDefaults()" class="text-sm text-red-600 hover:text-red-700 font-semibold hover:underline transition-colors">
+                <i class="fa-solid fa-redo mr-1"></i>Reset to Defaults
             </button>
         </div>
 
-        <div class="flex space-x-2">
+        <div class="flex flex-col gap-3">
             <button id="settings-btn" onclick="toggleSettings()" title="Theme Settings (Admin Only)"
-                class="bg-white text-gray-800 p-4 rounded-full shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105 border border-gray-200">
+                class="card-hover bg-gradient-to-br from-white to-gray-100 text-gray-800 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all border-2 border-gray-200">
                 <i class="fa-solid fa-palette text-xl"></i>
             </button>
             <button id="edit-btn" onclick="toggleEditMode()" title="Enable Editing (Admin Login Required)"
-                class="p-4 rounded-full shadow-lg hover:opacity-90 transition-transform transform hover:scale-105 bg-red-500 text-white">
+                class="card-hover p-4 rounded-full shadow-xl hover:shadow-2xl transition-all bg-gradient-to-br from-red-500 to-red-600 text-white border-2 border-red-600">
                 <i class="fa-solid fa-pen text-xl"></i>
             </button>
         </div>
@@ -1351,36 +1742,47 @@
 
     <!-- ADMIN LOGIN MODAL -->
     <div id="login-modal" class="modal-backdrop">
-        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm transform transition-all duration-300">
-            <h3 class="text-2xl font-bold mb-6 text-gray-900 text-center">Admin Login</h3>
+        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 border border-gray-200">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 rounded-full mb-4" style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                    <i class="fa-solid fa-lock-open text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900">Admin Login</h3>
+                <p class="text-gray-600 mt-2 text-sm">Manage your club content</p>
+            </div>
             <form onsubmit="event.preventDefault(); handleAdminLogin()">
-                <div class="mb-4">
-                    <label for="admin-username" class="block text-sm font-medium text-gray-700">
-                        Username
+                <div class="mb-5">
+                    <label for="admin-username" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fa-solid fa-user mr-2" style="color: var(--primary-hex);"></i>Username
                     </label>
                     <input type="text" id="admin-username"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none"
-                        required autocomplete="username">
+                        class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                        required autocomplete="username" placeholder="Enter username">
                 </div>
                 <div class="mb-6">
-                    <label for="admin-password" class="block text-sm font-medium text-gray-700">
-                        Password
+                    <label for="admin-password" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fa-solid fa-key mr-2" style="color: var(--primary-hex);"></i>Password
                     </label>
                     <input type="password" id="admin-password"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none"
-                        required autocomplete="current-password">
+                        class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                        required autocomplete="current-password" placeholder="Enter password">
                 </div>
-                <p id="login-error" class="text-red-500 text-sm mb-4"></p>
+                <p id="login-error" class="text-red-500 text-sm mb-4 font-semibold flex items-center">
+                    <i class="fa-solid fa-exclamation-circle mr-2"></i><span id="error-text"></span>
+                </p>
                 <button type="submit"
-                    class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md"
-                    style="background-color: var(--primary-hex);">
-                    Log In
+                    class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg transition-all shadow-md mb-3"
+                    style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                    <i class="fa-solid fa-sign-in-alt mr-2"></i>Log In
                 </button>
                 <button type="button" onclick="closeLoginModal()"
-                    class="w-full mt-3 bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
-                    Cancel
+                    class="w-full bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fa-solid fa-times mr-2"></i>Cancel
                 </button>
             </form>
+            <p class="text-center text-xs text-gray-500 mt-6">
+                Demo credentials: admin / India@123
+            </p>
         </div>
     </div>
 
