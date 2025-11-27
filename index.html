@@ -1182,7 +1182,8 @@
         const saveSectionToKV = async (sectionName) => {
             if (!state[sectionName]) return;
             try {
-                await fetch(`${WORKER_API}/content/update`, {
+                console.log(`Saving ${sectionName}:`, state[sectionName]);
+                const response = await fetch(`${WORKER_API}/content/update`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -1190,9 +1191,13 @@
                         data: state[sectionName]
                     })
                 });
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+                console.log(`✓ Successfully saved ${sectionName}`);
             } catch (e) {
                 console.error("Error saving section", sectionName, e);
-                showNotification("Error saving content. Check console.", "error");
+                showNotification(`Error saving ${sectionName}. Check console.`, "error");
             }
         };
 
@@ -1204,6 +1209,7 @@
                 const type = el.getAttribute("data-type");
 
                 if (!section || !state[section]) return;
+                // Skip array items here - they're handled below
                 if ((section === "events" || section === "team" || section === "testimonials") && type) return;
 
                 if (key) {
@@ -1211,96 +1217,106 @@
                 }
             });
 
-            // Events array
+            // Events array - only update if editable fields exist
             const eventNodes = document.querySelectorAll(
                 '[data-section="events"][data-type="event"]'
             );
-            const eventsMap = {};
-            eventNodes.forEach((el) => {
-                const index = parseInt(el.getAttribute("data-index"), 10);
-                const field = el.getAttribute("data-field");
-                if (Number.isNaN(index) || !field) return;
-                if (!eventsMap[index]) eventsMap[index] = {};
-                eventsMap[index][field] = el.textContent.trim();
-            });
-
-            const currentEvents = (state.events && state.events.events) || [];
-            const newEventsArray = Object.keys(eventsMap)
-                .map((k) => parseInt(k, 10))
-                .sort((a, b) => a - b)
-                .map((idx) => {
-                    const original = currentEvents[idx] || {};
-                    return {
-                        ...original,
-                        ...eventsMap[idx]
-                    };
+            if (eventNodes.length > 0) {
+                const eventsMap = {};
+                eventNodes.forEach((el) => {
+                    const index = parseInt(el.getAttribute("data-index"), 10);
+                    const field = el.getAttribute("data-field");
+                    if (Number.isNaN(index) || !field) return;
+                    if (!eventsMap[index]) eventsMap[index] = {};
+                    eventsMap[index][field] = el.textContent.trim();
                 });
 
-            if (newEventsArray.length > 0) {
-                state.events.events = newEventsArray;
+                const currentEvents = (state.events && state.events.events) || [];
+                const newEventsArray = Object.keys(eventsMap)
+                    .map((k) => parseInt(k, 10))
+                    .sort((a, b) => a - b)
+                    .map((idx) => {
+                        const original = currentEvents[idx] || {};
+                        return {
+                            ...original,
+                            ...eventsMap[idx]
+                        };
+                    });
+
+                if (newEventsArray.length > 0) {
+                    state.events.events = newEventsArray;
+                }
             }
 
-            // Team array
+            // Team array - only update if editable fields exist
             const teamNodes = document.querySelectorAll(
                 '[data-section="team"][data-type="member"]'
             );
-            const teamMap = {};
-            teamNodes.forEach((el) => {
-                const index = parseInt(el.getAttribute("data-index"), 10);
-                const field = el.getAttribute("data-field");
-                if (Number.isNaN(index) || !field) return;
-                if (!teamMap[index]) teamMap[index] = {};
-                teamMap[index][field] = el.textContent.trim();
-            });
-
-            const currentTeam = (state.team && state.team.team) || [];
-            const newTeamArray = Object.keys(teamMap)
-                .map((k) => parseInt(k, 10))
-                .sort((a, b) => a - b)
-                .map((idx) => {
-                    const original = currentTeam[idx] || {};
-                    return {
-                        ...original,
-                        ...teamMap[idx]
-                    };
+            if (teamNodes.length > 0) {
+                const teamMap = {};
+                teamNodes.forEach((el) => {
+                    const index = parseInt(el.getAttribute("data-index"), 10);
+                    const field = el.getAttribute("data-field");
+                    if (Number.isNaN(index) || !field) return;
+                    if (!teamMap[index]) teamMap[index] = {};
+                    teamMap[index][field] = el.textContent.trim();
                 });
 
-            if (newTeamArray.length > 0) {
-                state.team.team = newTeamArray;
+                const currentTeam = (state.team && state.team.team) || [];
+                const newTeamArray = Object.keys(teamMap)
+                    .map((k) => parseInt(k, 10))
+                    .sort((a, b) => a - b)
+                    .map((idx) => {
+                        const original = currentTeam[idx] || {};
+                        return {
+                            ...original,
+                            ...teamMap[idx]
+                        };
+                    });
+
+                if (newTeamArray.length > 0) {
+                    state.team.team = newTeamArray;
+                }
             }
 
-            // Testimonials array
+            // Testimonials array - only update if editable fields exist
             const testimonialsNodes = document.querySelectorAll(
                 '[data-section="testimonials"][data-type="testimonial"]'
             );
-            const testimonialsMap = {};
-            testimonialsNodes.forEach((el) => {
-                const index = parseInt(el.getAttribute("data-index"), 10);
-                const field = el.getAttribute("data-field");
-                if (Number.isNaN(index) || !field) return;
-                if (!testimonialsMap[index]) testimonialsMap[index] = {};
-                testimonialsMap[index][field] = el.textContent.trim();
-            });
-
-            const currentTestimonials = (state.testimonials && state.testimonials.testimonials) || [];
-            const newTestimonialsArray = Object.keys(testimonialsMap)
-                .map((k) => parseInt(k, 10))
-                .sort((a, b) => a - b)
-                .map((idx) => {
-                    const original = currentTestimonials[idx] || {};
-                    return {
-                        ...original,
-                        ...testimonialsMap[idx]
-                    };
+            if (testimonialsNodes.length > 0) {
+                const testimonialsMap = {};
+                testimonialsNodes.forEach((el) => {
+                    const index = parseInt(el.getAttribute("data-index"), 10);
+                    const field = el.getAttribute("data-field");
+                    if (Number.isNaN(index) || !field) return;
+                    if (!testimonialsMap[index]) testimonialsMap[index] = {};
+                    testimonialsMap[index][field] = el.textContent.trim();
                 });
 
-            if (newTestimonialsArray.length > 0) {
-                state.testimonials.testimonials = newTestimonialsArray;
+                const currentTestimonials = (state.testimonials && state.testimonials.testimonials) || [];
+                const newTestimonialsArray = Object.keys(testimonialsMap)
+                    .map((k) => parseInt(k, 10))
+                    .sort((a, b) => a - b)
+                    .map((idx) => {
+                        const original = currentTestimonials[idx] || {};
+                        return {
+                            ...original,
+                            ...testimonialsMap[idx]
+                        };
+                    });
+
+                if (newTestimonialsArray.length > 0) {
+                    state.testimonials.testimonials = newTestimonialsArray;
+                }
             }
         };
 
         const saveAllSections = async () => {
+            console.log("🔄 Updating state from DOM...");
             updateStateFromDOM();
+            console.log("📊 Current state:", state);
+            
+            console.log("💾 Saving all sections to KV...");
             await Promise.all([
                 saveSectionToKV("general"),
                 saveSectionToKV("about"),
@@ -1310,7 +1326,7 @@
                 saveSectionToKV("testimonials"),
                 saveSectionToKV("socialMedia")
             ]);
-            showNotification("Content saved successfully!", "success");
+            showNotification("✓ All content saved successfully!", "success");
         };
 
         // ==== THEME FUNCTIONS ====
@@ -1762,7 +1778,7 @@
             }
         };
 
-        window.toggleEditMode = () => {
+        window.toggleEditMode = async () => {
             if (!adminLoggedIn) {
                 const modal = document.getElementById("login-modal");
                 if (modal) modal.style.display = "flex";
@@ -1771,10 +1787,12 @@
 
             if (isEditing) {
                 // Save changes before exiting edit mode
-                saveAllSections();
+                await saveAllSections();
+                isEditing = false;
+            } else {
+                isEditing = true;
             }
 
-            isEditing = !isEditing;
             const editBtn = document.getElementById("edit-btn");
             if (!editBtn) return;
             const editIcon = editBtn.querySelector("i");
