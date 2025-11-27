@@ -188,6 +188,8 @@
             about: null,
             events: null,
             gallery: null,
+            team: null,
+            testimonials: null,
         };
 
         // ==== DEFAULT CONTENT ====
@@ -249,8 +251,67 @@
             ]
         };
 
+        const defaultTeam = {
+            team: [
+                {
+                    name: "Rajesh Kumar",
+                    role: "President",
+                    bio: "20 years of experience in boat racing",
+                    gradientFrom: "#ef4444",
+                    gradientTo: "#f97316"
+                },
+                {
+                    name: "Priya Nair",
+                    role: "Vice President",
+                    bio: "Cultural events & arts coordinator",
+                    gradientFrom: "#3b82f6",
+                    gradientTo: "#6366f1"
+                },
+                {
+                    name: "Amit Sharma",
+                    role: "Treasurer",
+                    bio: "Financial management & operations",
+                    gradientFrom: "#22c55e",
+                    gradientTo: "#14b8a6"
+                },
+                {
+                    name: "Divya Menon",
+                    role: "Events Manager",
+                    bio: "Planning & execution of events",
+                    gradientFrom: "#a855f7",
+                    gradientTo: "#ec4899"
+                }
+            ]
+        };
+
+        const defaultTestimonials = {
+            testimonials: [
+                {
+                    text: "Being part of this club has transformed my life. The experience, the people, and the traditions are incredible. Highly recommended!",
+                    author: "Vikram Kumar",
+                    title: "Racing Champion",
+                    initials: "VK",
+                    borderColor: "#ef4444"
+                },
+                {
+                    text: "The cultural events here are world-class. I've learned so much about our heritage while making amazing friends.",
+                    author: "Sneha Ansari",
+                    title: "Performer & Artist",
+                    initials: "SA",
+                    borderColor: "#3b82f6"
+                },
+                {
+                    text: "A supportive community that values both tradition and progress. The management is excellent and always open to new ideas.",
+                    author: "Rohan Verma",
+                    title: "Member & Sports Coach",
+                    initials: "RV",
+                    borderColor: "#22c55e"
+                }
+            ]
+        };
+
         const allLoaded = () =>
-            state.general && state.about && state.events && state.gallery;
+            state.general && state.about && state.events && state.gallery && state.team && state.testimonials;
 
         // ==== UTILITIES ====
         const updateTailwindColors = (primary, secondary) => {
@@ -571,10 +632,147 @@
             });
         };
 
+        const renderTeam = () => {
+            const container = document.getElementById("team-container");
+            if (!container) return;
+
+            const data = state.team || defaultTeam;
+            const team = Array.isArray(data.team) ? data.team : [];
+
+            container.innerHTML = "";
+
+            team.forEach((member, index) => {
+                const card = document.createElement("div");
+                card.className = "card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
+
+                card.innerHTML = `
+                    <div class="h-48 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
+                        <i class="fa-solid fa-user-tie text-6xl text-white/30"></i>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="editable text-lg font-bold text-gray-900"
+                            data-section="team"
+                            data-type="member"
+                            data-index="${index}"
+                            data-field="name"
+                            ${isEditing ? 'contenteditable="true"' : ''}>
+                            ${member.name || ""}
+                        </h3>
+                        <p class="editable text-sm font-semibold mt-1 transition-colors"
+                            data-section="team"
+                            data-type="member"
+                            data-index="${index}"
+                            data-field="role"
+                            style="color: ${member.gradientFrom};"
+                            ${isEditing ? 'contenteditable="true"' : ''}>
+                            ${member.role || ""}
+                        </p>
+                        <p class="editable text-gray-600 text-sm mt-3"
+                            data-section="team"
+                            data-type="member"
+                            data-index="${index}"
+                            data-field="bio"
+                            ${isEditing ? 'contenteditable="true"' : ''}>
+                            ${member.bio || ""}
+                        </p>
+                        <div class="admin-image-controls mt-4 space-x-2 text-xs flex justify-center">
+                            <button type="button"
+                                class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
+                                onclick="window.removeTeamMember(${index})">
+                                <i class="fa-solid fa-trash mr-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        const renderTestimonials = () => {
+            const container = document.getElementById("testimonials-container");
+            if (!container) return;
+
+            const data = state.testimonials || defaultTestimonials;
+            const testimonials = Array.isArray(data.testimonials) ? data.testimonials : [];
+
+            container.innerHTML = "";
+
+            testimonials.forEach((testimonial, index) => {
+                const card = document.createElement("div");
+                card.className = "card-hover bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 relative";
+                card.style.borderLeftColor = testimonial.borderColor;
+
+                card.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="editable text-gray-700 mb-4 italic"
+                       data-section="testimonials"
+                       data-type="testimonial"
+                       data-index="${index}"
+                       data-field="text"
+                       ${isEditing ? 'contenteditable="true"' : ''}>
+                        "${testimonial.text || ""}"
+                    </p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, ${testimonial.borderColor}, rgba(239, 68, 68, 0.7));">
+                                <span class="editable"
+                                      data-section="testimonials"
+                                      data-type="testimonial"
+                                      data-index="${index}"
+                                      data-field="initials"
+                                      ${isEditing ? 'contenteditable="true"' : ''}>
+                                    ${testimonial.initials || ""}
+                                </span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="editable font-bold text-gray-900"
+                                   data-section="testimonials"
+                                   data-type="testimonial"
+                                   data-index="${index}"
+                                   data-field="author"
+                                   ${isEditing ? 'contenteditable="true"' : ''}>
+                                    ${testimonial.author || ""}
+                                </p>
+                                <p class="editable text-sm text-gray-600"
+                                   data-section="testimonials"
+                                   data-type="testimonial"
+                                   data-index="${index}"
+                                   data-field="title"
+                                   ${isEditing ? 'contenteditable="true"' : ''}>
+                                    ${testimonial.title || ""}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="admin-image-controls text-xs">
+                            <button type="button"
+                                class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
+                                onclick="window.removeTestimonial(${index})">
+                                <i class="fa-solid fa-trash mr-1"></i>Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
         const renderAll = () => {
             renderGeneral();
             renderAbout();
             renderEvents();
+            renderGallery();
+            renderTeam();
+            renderTestimonials();
             renderGallery();
 
             const yearEl = document.getElementById("year");
@@ -603,6 +801,8 @@
                 state.about = withDefaults(defaultAbout, data.about);
                 state.events = withDefaults(defaultEvents, data.events);
                 state.gallery = withDefaults(defaultGallery, data.gallery);
+                state.team = withDefaults(defaultTeam, data.team);
+                state.testimonials = withDefaults(defaultTestimonials, data.testimonials);
 
                 renderAll();
             } catch (e) {
@@ -611,6 +811,8 @@
                 state.about = { ...defaultAbout };
                 state.events = { ...defaultEvents };
                 state.gallery = { ...defaultGallery };
+                state.team = { ...defaultTeam };
+                state.testimonials = { ...defaultTestimonials };
                 renderAll();
             }
         }
@@ -640,7 +842,7 @@
                 const type = el.getAttribute("data-type");
 
                 if (!section || !state[section]) return;
-                if (section === "events" && type === "event") return;
+                if ((section === "events" || section === "team" || section === "testimonials") && type) return;
 
                 if (key) {
                     state[section][key] = el.textContent.trim();
@@ -675,6 +877,64 @@
             if (newEventsArray.length > 0) {
                 state.events.events = newEventsArray;
             }
+
+            // Team array
+            const teamNodes = document.querySelectorAll(
+                '[data-section="team"][data-type="member"]'
+            );
+            const teamMap = {};
+            teamNodes.forEach((el) => {
+                const index = parseInt(el.getAttribute("data-index"), 10);
+                const field = el.getAttribute("data-field");
+                if (Number.isNaN(index) || !field) return;
+                if (!teamMap[index]) teamMap[index] = {};
+                teamMap[index][field] = el.textContent.trim();
+            });
+
+            const currentTeam = (state.team && state.team.team) || [];
+            const newTeamArray = Object.keys(teamMap)
+                .map((k) => parseInt(k, 10))
+                .sort((a, b) => a - b)
+                .map((idx) => {
+                    const original = currentTeam[idx] || {};
+                    return {
+                        ...original,
+                        ...teamMap[idx]
+                    };
+                });
+
+            if (newTeamArray.length > 0) {
+                state.team.team = newTeamArray;
+            }
+
+            // Testimonials array
+            const testimonialsNodes = document.querySelectorAll(
+                '[data-section="testimonials"][data-type="testimonial"]'
+            );
+            const testimonialsMap = {};
+            testimonialsNodes.forEach((el) => {
+                const index = parseInt(el.getAttribute("data-index"), 10);
+                const field = el.getAttribute("data-field");
+                if (Number.isNaN(index) || !field) return;
+                if (!testimonialsMap[index]) testimonialsMap[index] = {};
+                testimonialsMap[index][field] = el.textContent.trim();
+            });
+
+            const currentTestimonials = (state.testimonials && state.testimonials.testimonials) || [];
+            const newTestimonialsArray = Object.keys(testimonialsMap)
+                .map((k) => parseInt(k, 10))
+                .sort((a, b) => a - b)
+                .map((idx) => {
+                    const original = currentTestimonials[idx] || {};
+                    return {
+                        ...original,
+                        ...testimonialsMap[idx]
+                    };
+                });
+
+            if (newTestimonialsArray.length > 0) {
+                state.testimonials.testimonials = newTestimonialsArray;
+            }
         };
 
         const saveAllSections = async () => {
@@ -683,7 +943,9 @@
                 saveSectionToKV("general"),
                 saveSectionToKV("about"),
                 saveSectionToKV("events"),
-                saveSectionToKV("gallery")
+                saveSectionToKV("gallery"),
+                saveSectionToKV("team"),
+                saveSectionToKV("testimonials")
             ]);
             showNotification("Content saved successfully!", "success");
         };
@@ -977,6 +1239,107 @@
             renderEvents();
             saveSectionToKV("events");
             showNotification("Event removed.", "success");
+        };
+
+        // ==== TEAM ADMIN ACTIONS ====
+        window.addTeamMember = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add team members.", "info");
+                return;
+            }
+
+            const teamState = state.team || (state.team = { ...defaultTeam });
+            if (!Array.isArray(teamState.team)) {
+                teamState.team = [];
+            }
+
+            const colors = [
+                { from: "#ef4444", to: "#f97316" },
+                { from: "#3b82f6", to: "#6366f1" },
+                { from: "#22c55e", to: "#14b8a6" },
+                { from: "#a855f7", to: "#ec4899" }
+            ];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            teamState.team.push({
+                name: "New Team Member",
+                role: "Position",
+                bio: "Bio goes here...",
+                gradientFrom: randomColor.from,
+                gradientTo: randomColor.to
+            });
+
+            renderTeam();
+            saveSectionToKV("team");
+            showNotification("New team member added. Click on text to edit.", "success");
+        };
+
+        window.removeTeamMember = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove team members.", "info");
+                return;
+            }
+
+            const teamState = state.team || (state.team = { ...defaultTeam });
+
+            if (!Array.isArray(teamState.team) || index < 0 || index >= teamState.team.length) {
+                return;
+            }
+
+            if (!confirm("Remove this team member?")) return;
+
+            teamState.team.splice(index, 1);
+            renderTeam();
+            saveSectionToKV("team");
+            showNotification("Team member removed.", "success");
+        };
+
+        // ==== TESTIMONIALS ADMIN ACTIONS ====
+        window.addTestimonial = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add testimonials.", "info");
+                return;
+            }
+
+            const testimonialsState = state.testimonials || (state.testimonials = { ...defaultTestimonials });
+            if (!Array.isArray(testimonialsState.testimonials)) {
+                testimonialsState.testimonials = [];
+            }
+
+            const colors = ["#ef4444", "#3b82f6", "#22c55e"];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            testimonialsState.testimonials.push({
+                text: "Amazing experience being part of this club!",
+                author: "New Member",
+                title: "Member",
+                initials: "NM",
+                borderColor: randomColor
+            });
+
+            renderTestimonials();
+            saveSectionToKV("testimonials");
+            showNotification("New testimonial added. Click on text to edit.", "success");
+        };
+
+        window.removeTestimonial = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove testimonials.", "info");
+                return;
+            }
+
+            const testimonialsState = state.testimonials || (state.testimonials = { ...defaultTestimonials });
+
+            if (!Array.isArray(testimonialsState.testimonials) || index < 0 || index >= testimonialsState.testimonials.length) {
+                return;
+            }
+
+            if (!confirm("Remove this testimonial?")) return;
+
+            testimonialsState.testimonials.splice(index, 1);
+            renderTestimonials();
+            saveSectionToKV("testimonials");
+            showNotification("Testimonial removed.", "success");
         };
 
         // ==== CONTACT FORM ====
@@ -1356,143 +1719,45 @@
     <!-- TEAM SECTION -->
     <section id="team" class="py-20 bg-gradient-to-br from-slate-50 to-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                    <i class="fa-solid fa-users-line mr-2"></i>Our Team
-                </h2>
-                <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                    Meet Our Leadership
-                </p>
-                <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                <div>
+                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                        <i class="fa-solid fa-users-line mr-2"></i>Our Team
+                    </h2>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                        Meet Our Leadership
+                    </p>
+                    <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
+                </div>
+                <button type="button" onclick="window.addTeamMember()"
+                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                    title="Add new team member">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Member
+                </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- Team Member 1 -->
-                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
-                    <div class="h-48 bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center">
-                        <i class="fa-solid fa-user-tie text-6xl text-white/30"></i>
-                    </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-lg font-bold text-gray-900">Rajesh Kumar</h3>
-                        <p class="text-sm font-semibold mt-1" style="color: var(--primary-hex);">President</p>
-                        <p class="text-gray-600 text-sm mt-3">20 years of experience in boat racing</p>
-                    </div>
-                </div>
-                <!-- Team Member 2 -->
-                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
-                    </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-lg font-bold text-gray-900">Priya Nair</h3>
-                        <p class="text-sm font-semibold mt-1 text-blue-600;">Vice President</p>
-                        <p class="text-gray-600 text-sm mt-3">Cultural events & arts coordinator</p>
-                    </div>
-                </div>
-                <!-- Team Member 3 -->
-                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
-                    <div class="h-48 bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center">
-                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
-                    </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-lg font-bold text-gray-900">Amit Sharma</h3>
-                        <p class="text-sm font-semibold mt-1 text-green-600;">Treasurer</p>
-                        <p class="text-gray-600 text-sm mt-3">Financial management & operations</p>
-                    </div>
-                </div>
-                <!-- Team Member 4 -->
-                <div class="card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
-                    <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
-                        <i class="fa-solid fa-person text-6xl text-white/30"></i>
-                    </div>
-                    <div class="p-6 text-center">
-                        <h3 class="text-lg font-bold text-gray-900">Divya Menon</h3>
-                        <p class="text-sm font-semibold mt-1 text-purple-600;">Events Manager</p>
-                        <p class="text-gray-600 text-sm mt-3">Planning & execution of events</p>
-                    </div>
-                </div>
-            </div>
+            <div id="team-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </div>
     </section>
 
     <!-- TESTIMONIALS SECTION -->
     <section id="testimonials" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                    <i class="fa-solid fa-star mr-2"></i>What People Say
-                </h2>
-                <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                    Member Testimonials
-                </p>
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                <div>
+                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                        <i class="fa-solid fa-star mr-2"></i>What People Say
+                    </h2>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                        Member Testimonials
+                    </p>
+                </div>
+                <button type="button" onclick="window.addTestimonial()"
+                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                    title="Add new testimonial">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Testimonial
+                </button>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="card-hover bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4" style="border-left-color: var(--primary-hex);">
-                    <div class="flex items-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic">"Being part of this club has transformed my life. The experience, the people, and the traditions are incredible. Highly recommended!"</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-orange-400 flex items-center justify-center text-white font-bold">
-                            VK
-                        </div>
-                        <div class="ml-4">
-                            <p class="font-bold text-gray-900">Vikram Kumar</p>
-                            <p class="text-sm text-gray-600">Racing Champion</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Testimonial 2 -->
-                <div class="card-hover bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 border-blue-500">
-                    <div class="flex items-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic">"The cultural events here are world-class. I've learned so much about our heritage while making amazing friends."</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
-                            SA
-                        </div>
-                        <div class="ml-4">
-                            <p class="font-bold text-gray-900">Sneha Ansari</p>
-                            <p class="text-sm text-gray-600">Performer & Artist</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Testimonial 3 -->
-                <div class="card-hover bg-gradient-to-br from-green-50 to-teal-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 border-green-500">
-                    <div class="flex items-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4 italic">"A supportive community that values both tradition and progress. The management is excellent and always open to new ideas."</p>
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white font-bold">
-                            RV
-                        </div>
-                        <div class="ml-4">
-                            <p class="font-bold text-gray-900">Rohan Verma</p>
-                            <p class="text-sm text-gray-600">Member & Sports Coach</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="testimonials-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
         </div>
     </section>
 
