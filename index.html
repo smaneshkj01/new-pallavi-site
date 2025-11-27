@@ -1165,6 +1165,25 @@
                 state.testimonials = withDefaults(defaultTestimonials, data.testimonials);
                 state.socialMedia = withDefaults(defaultSocialMedia, data.socialMedia);
 
+                // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
+                try {
+                    ["general","about","events","gallery","team","testimonials","socialMedia"].forEach((sec) => {
+                        const key = `np_backup_${sec}`;
+                        const raw = localStorage.getItem(key);
+                        if (raw) {
+                            try {
+                                const parsed = JSON.parse(raw);
+                                state[sec] = { ...state[sec], ...parsed };
+                                console.log(`Merged local backup for ${sec}`);
+                            } catch (pe) {
+                                console.warn('Failed to parse local backup for', sec, pe);
+                            }
+                        }
+                    });
+                } catch (lsErr) {
+                    console.warn('localStorage not available or failed merging backups', lsErr);
+                }
+
                 renderAll();
             } catch (e) {
                 console.error("Error loading content from Worker:", e);
@@ -1195,9 +1214,22 @@
                     throw new Error(`Server returned ${response.status}`);
                 }
                 console.log(`✓ Successfully saved ${sectionName}`);
+                // Remove local backup on successful save
+                try {
+                    localStorage.removeItem(`np_backup_${sectionName}`);
+                } catch (e) {
+                    console.warn('localStorage unavailable to remove backup for', sectionName, e);
+                }
             } catch (e) {
                 console.error("Error saving section", sectionName, e);
-                showNotification(`Error saving ${sectionName}. Check console.`, "error");
+                showNotification(`Error saving ${sectionName}. Changes saved locally as backup.`, "error");
+                // Fallback: store section in localStorage so edits aren't lost
+                try {
+                    localStorage.setItem(`np_backup_${sectionName}`, JSON.stringify(state[sectionName]));
+                    console.log(`Local backup created for ${sectionName}`);
+                } catch (le) {
+                    console.warn('Failed to create local backup for', sectionName, le);
+                }
             }
         };
 
@@ -2506,9 +2538,7 @@
                     <i class="fa-solid fa-times mr-2"></i>Cancel
                 </button>
             </form>
-            <p class="text-center text-xs text-gray-500 mt-6">
-                Demo credentials: admin / India@123
-            </p>
+            <!-- Demo credentials removed for security -->
         </div>
     </div>
 
