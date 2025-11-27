@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" style="--primary-hex: #ef4444; --secondary-hex: #0f172a;">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <style>
         :root {
@@ -56,1225 +59,1351 @@
 
 <body class="bg-gray-100 text-gray-900">
 
-<script>
-    // ==== CONFIG ====
-    const WORKER_API = "https://boatclub-content-api.smanesh-kj.workers.dev";
-    const R2_WORKER_URL = "https://boatclub-r2-uploader.smanesh-kj.workers.dev/";
+    <script>
+        const ADMIN_USERNAME = "admin";
+        const ADMIN_PASSWORD = "India@123";
+        const WORKER_API = "https://boatclub-content-api.smanesh-kj.workers.dev";
+        const R2_WORKER_URL = "https://boatclub-r2-uploader.smanesh-kj.workers.dev/";
 
-    const ADMIN_USERNAME = "admin";
-    const ADMIN_PASSWORD = "India@123";
+        // ==== GLOBAL STATE ====
+        let adminLoggedIn = false;
+        let isEditing = false;
+        let initialDataLoaded = false;
 
-    // ==== GLOBAL STATE ====
-    let adminLoggedIn = false;
-    let isEditing = false;
-    let initialDataLoaded = false;
+        let galleryFileInputEl = null;
+        let heroFileInputEl = null;
+        let logoFileInputEl = null;
+        let pendingGalleryUploadAction = null;
+        let pendingHeroUploadAction = null;
+        let pendingLogoUploadAction = null;
 
-    let galleryFileInputEl = null;
-    let heroFileInputEl = null;
-    let pendingGalleryUploadAction = null;
-    let pendingHeroUploadAction = null;
+        const state = {
+            general: null,
+            about: null,
+            events: null,
+            gallery: null,
+        };
 
-    const state = {
-        general: null,
-        about: null,
-        events: null,
-        gallery: null,
-    };
+        // ==== DEFAULT CONTENT ====
+        const defaultGeneral = {
+            clubName: "New Pallavi Arts & Sports Boat Club",
+            heroTitle: "Riding the Waves of Tradition",
+            heroSubtitle: "Annual Boat Race and Cultural Festival",
+            heroBg: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920",
+            address: "123 River Side Road, Boat Club Junction, Kerala, India",
+            phone: "+91 98765 43210",
+            email: "contact@newpallaviboatclub.com",
+            logo: "images/logo.png",
+            primaryColor: "#ef4444",
+            secondaryColor: "#0f172a"
+        };
 
-    // ==== DEFAULT CONTENT ====
-    const defaultGeneral = {
-        clubName: "New Pallavi Arts & Sports Boat Club",
-        heroTitle: "Riding the Waves of Tradition",
-        heroSubtitle: "Annual Boat Race and Cultural Festival",
-        heroBg: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920",
-        address: "123 River Side Road, Boat Club Junction, Kerala, India",
-        phone: "+91 98765 43210",
-        email: "contact@newpallaviboatclub.com",
-        primaryColor: "#ef4444",
-        secondaryColor: "#0f172a"
-    };
+        const defaultAbout = {
+            aboutTitle: "A Legacy of Excellence",
+            aboutText: "New Pallavi Arts & Sports Boat Club has been at the forefront of organizing premier boat races and cultural events. Our mission is to preserve tradition while fostering athletic talent in our community.",
+            feat1: "Winners of multiple regional boat racing regattas.",
+            feat2: "Over 500 active members dedicated to arts and sports.",
+            feat3: "Promoting local art forms through annual exhibitions."
+        };
 
-    const defaultAbout = {
-        aboutTitle: "A Legacy of Excellence",
-        aboutText: "New Pallavi Arts & Sports Boat Club has been at the forefront of organizing premier boat races and cultural events. Our mission is to preserve tradition while fostering athletic talent in our community.",
-        feat1: "Winners of multiple regional boat racing regattas.",
-        feat2: "Over 500 active members dedicated to arts and sports.",
-        feat3: "Promoting local art forms through annual exhibitions."
-    };
+        const defaultEvents = {
+            events: [
+                {
+                    title: "Annual Boat Race",
+                    desc: "Join us for the biggest race of the year on the river backwaters.",
+                    date: "Aug 15, 2024",
+                    iconClass: "fa-regular fa-calendar-check",
+                    badgeClass: "bg-green-500 text-white"
+                },
+                {
+                    title: "Cultural Night",
+                    desc: "A night of music, dance, and drama performed by club members.",
+                    date: "Sept 10, 2024",
+                    iconClass: "fa-solid fa-music",
+                    badgeClass: "bg-blue-500 text-white"
+                },
+                {
+                    title: "Charity Drive",
+                    desc: "Collecting supplies for local schools and shelters.",
+                    date: "Oct 02, 2024",
+                    iconClass: "fa-solid fa-hand-holding-heart",
+                    badgeClass: "bg-orange-500 text-white"
+                }
+            ]
+        };
 
-    const defaultEvents = {
-        events: [
-            {
-                title: "Annual Boat Race",
-                desc: "Join us for the biggest race of the year on the river backwaters.",
-                date: "Aug 15, 2024",
-                iconClass: "fa-regular fa-calendar-check",
-                badgeClass: "bg-green-500 text-white"
-            },
-            {
-                title: "Cultural Night",
-                desc: "A night of music, dance, and drama performed by club members.",
-                date: "Sept 10, 2024",
-                iconClass: "fa-solid fa-music",
-                badgeClass: "bg-blue-500 text-white"
-            },
-            {
-                title: "Charity Drive",
-                desc: "Collecting supplies for local schools and shelters.",
-                date: "Oct 02, 2024",
-                iconClass: "fa-solid fa-hand-holding-heart",
-                badgeClass: "bg-orange-500 text-white"
-            }
-        ]
-    };
+        const defaultGallery = {
+            gallery: [
+                "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800",
+                "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
+                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800",
+                "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800",
+                "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?q=80&w=800",
+                "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=800"
+            ]
+        };
 
-    const defaultGallery = {
-        gallery: [
-            "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800",
-            "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
-            "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800",
-            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800",
-            "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?q=80&w=800",
-            "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=800"
-        ]
-    };
+        const allLoaded = () =>
+            state.general && state.about && state.events && state.gallery;
 
-    const allLoaded = () =>
-        state.general && state.about && state.events && state.gallery;
+        // ==== UTILITIES ====
+        const updateTailwindColors = (primary, secondary) => {
+            document.documentElement.style.setProperty("--primary-hex", primary);
+            document.documentElement.style.setProperty("--secondary-hex", secondary);
 
-    // ==== UTILITIES ====
-    const updateTailwindColors = (primary, secondary) => {
-        document.documentElement.style.setProperty("--primary-hex", primary);
-        document.documentElement.style.setProperty("--secondary-hex", secondary);
-
-        document.querySelectorAll(".text-primary").forEach(
-            (el) => (el.style.color = primary)
-        );
-        document.querySelectorAll(".bg-primary").forEach(
-            (el) => (el.style.backgroundColor = primary)
-        );
-        document.querySelectorAll(".bg-secondary").forEach(
-            (el) => (el.style.backgroundColor = secondary)
-        );
-        document.querySelectorAll(".button-primary").forEach(
-            (el) => (el.style.backgroundColor = primary)
-        );
-        document.querySelectorAll(".icon-bg").forEach(
-            (el) => (el.style.backgroundColor = primary)
-        );
-        document.querySelectorAll(".title-color").forEach(
-            (el) => (el.style.color = primary)
-        );
-    };
-
-    const showNotification = (message, type) => {
-        const container = document.getElementById("notification-container");
-        if (!container) return;
-
-        const notification = document.createElement("div");
-        let colorClass = "";
-        let icon = "";
-
-        if (type === "success") {
-            colorClass = "bg-green-500";
-            icon = '<i class="fa-solid fa-check-circle mr-2"></i>';
-        } else if (type === "error") {
-            colorClass = "bg-red-500";
-            icon = '<i class="fa-solid fa-times-circle mr-2"></i>';
-        } else {
-            colorClass = "bg-blue-500";
-            icon = '<i class="fa-solid fa-info-circle mr-2"></i>';
-        }
-
-        notification.className =
-            "p-4 rounded-lg shadow-xl text-white font-semibold transition-all duration-300 ease-in-out mt-2 " +
-            colorClass + " opacity-0 transform translate-y-2 pointer-events-auto";
-        notification.innerHTML = icon + message;
-
-        container.prepend(notification);
-
-        setTimeout(() => {
-            notification.classList.remove("opacity-0", "translate-y-2");
-        }, 50);
-
-        setTimeout(() => {
-            notification.classList.add("opacity-0", "translate-y-2");
-            notification.addEventListener("transitionend", () =>
-                notification.remove()
+            document.querySelectorAll(".text-primary").forEach(
+                (el) => (el.style.color = primary)
             );
-        }, 4000);
-    };
+            document.querySelectorAll(".bg-primary").forEach(
+                (el) => (el.style.backgroundColor = primary)
+            );
+            document.querySelectorAll(".bg-secondary").forEach(
+                (el) => (el.style.backgroundColor = secondary)
+            );
+            document.querySelectorAll(".button-primary").forEach(
+                (el) => (el.style.backgroundColor = primary)
+            );
+            document.querySelectorAll(".icon-bg").forEach(
+                (el) => (el.style.backgroundColor = primary)
+            );
+            document.querySelectorAll(".title-color").forEach(
+                (el) => (el.style.color = primary)
+            );
+        };
 
-    // Lightbox - Fixed popup functionality
-    window.openImagePopup = (src) => {
-        const modal = document.getElementById("image-popup");
-        const img = document.getElementById("popup-img");
-        if (!modal || !img) return;
-        img.src = src;
-        modal.classList.add("show");
-    };
+        const showNotification = (message, type) => {
+            const container = document.getElementById("notification-container");
+            if (!container) return;
 
-    window.closeImagePopup = () => {
-        const modal = document.getElementById("image-popup");
-        if (modal) {
-            modal.classList.remove("show");
-        }
-    };
+            const notification = document.createElement("div");
+            let colorClass = "";
+            let icon = "";
 
-    const initLightboxClose = () => {
-        const modal = document.getElementById("image-popup");
-        if (!modal) return;
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal || e.target.id === "popup-close-btn") {
-                closeImagePopup();
+            if (type === "success") {
+                colorClass = "bg-green-500";
+                icon = '<i class="fa-solid fa-check-circle mr-2"></i>';
+            } else if (type === "error") {
+                colorClass = "bg-red-500";
+                icon = '<i class="fa-solid fa-times-circle mr-2"></i>';
+            } else {
+                colorClass = "bg-blue-500";
+                icon = '<i class="fa-solid fa-info-circle mr-2"></i>';
             }
-        });
-        // Close on escape key
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                closeImagePopup();
+
+            notification.className =
+                "p-4 rounded-lg shadow-xl text-white font-semibold transition-all duration-300 ease-in-out mt-2 " +
+                colorClass + " opacity-0 transform translate-y-2 pointer-events-auto";
+            notification.innerHTML = icon + message;
+
+            container.prepend(notification);
+
+            setTimeout(() => {
+                notification.classList.remove("opacity-0", "translate-y-2");
+            }, 50);
+
+            setTimeout(() => {
+                notification.classList.add("opacity-0", "translate-y-2");
+                notification.addEventListener("transitionend", () =>
+                    notification.remove()
+                );
+            }, 4000);
+        };
+
+        // Lightbox - Fixed popup functionality
+        window.openImagePopup = (src) => {
+            const modal = document.getElementById("image-popup");
+            const img = document.getElementById("popup-img");
+            if (!modal || !img) return;
+            img.src = src;
+            modal.classList.add("show");
+        };
+
+        window.closeImagePopup = () => {
+            const modal = document.getElementById("image-popup");
+            if (modal) {
+                modal.classList.remove("show");
             }
-        });
-    };
+        };
 
-    // --- CLOUDFLARE R2 UPLOAD ---
-    async function uploadToR2(file, folder = "gallery") {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", folder);
+        const initLightboxClose = () => {
+            const modal = document.getElementById("image-popup");
+            if (!modal) return;
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal || e.target.id === "popup-close-btn") {
+                    closeImagePopup();
+                }
+            });
+            // Close on escape key
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    closeImagePopup();
+                }
+            });
+        };
 
-        const response = await fetch(R2_WORKER_URL, {
-            method: "POST",
-            body: formData
-        });
+        // --- CLOUDFLARE R2 UPLOAD ---
+        async function uploadToR2(file, folder = "gallery") {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("folder", folder);
 
-        if (!response.ok) {
-            throw new Error("Upload failed with status " + response.status);
+            const response = await fetch(R2_WORKER_URL, {
+                method: "POST",
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Upload failed with status " + response.status);
+            }
+
+            const result = await response.json();
+            if (!result.success || !result.url) {
+                throw new Error(result.error || "Upload failed");
+            }
+            return result.url;
         }
 
-        const result = await response.json();
-        if (!result.success || !result.url) {
-            throw new Error(result.error || "Upload failed");
+        // ==== RENDERING FUNCTIONS ====
+
+        const renderGeneral = () => {
+            const data = state.general || defaultGeneral;
+
+            const clubNameEl = document.getElementById("club-name");
+            if (clubNameEl) clubNameEl.textContent = data.clubName;
+
+            const heroTitleEl = document.querySelector(
+                '[data-section="general"][data-key="heroTitle"]'
+            );
+            const heroSubtitleEl = document.querySelector(
+                '[data-section="general"][data-key="heroSubtitle"]'
+            );
+            if (heroTitleEl) heroTitleEl.textContent = data.heroTitle;
+            if (heroSubtitleEl) heroSubtitleEl.textContent = data.heroSubtitle;
+
+            const heroImg = document.getElementById("hero-bg-img");
+            if (heroImg) {
+                heroImg.src = data.heroBg;
+                heroImg.onerror = () => {
+                    heroImg.onerror = null;
+                    heroImg.src = "https://placehold.co/1920x600/0f172a/ffffff?text=Image+Missing";
+                };
+            }
+
+            const addressEl = document.querySelector(
+                '[data-section="general"][data-key="address"]'
+            );
+            const phoneEl = document.querySelector(
+                '[data-section="general"][data-key="phone"]'
+            );
+            const emailEl = document.querySelector(
+                '[data-section="general"][data-key="email"]'
+            );
+            if (addressEl) addressEl.textContent = data.address;
+            if (phoneEl) phoneEl.textContent = data.phone;
+            if (emailEl) emailEl.textContent = data.email;
+
+            const primary = data.primaryColor || defaultGeneral.primaryColor;
+            const secondary = data.secondaryColor || defaultGeneral.secondaryColor;
+            updateTailwindColors(primary, secondary);
+
+            const secondaryInput = document.getElementById("custom-secondary");
+            const primaryInput = document.getElementById("custom-primary");
+            const heroInput = document.getElementById("hero-bg-input");
+            if (primaryInput) primaryInput.value = primary;
+            if (secondaryInput) secondaryInput.value = secondary;
+            if (heroInput) heroInput.value = data.heroBg || "";
+
+            const logoEl = document.getElementById("club-logo");
+            if (logoEl && data.logo) {
+                logoEl.src = data.logo;
+            }
+        };
+
+        const renderAbout = () => {
+            const data = state.about || defaultAbout;
+
+            const aboutTitle = document.querySelector(
+                '[data-section="about"][data-key="aboutTitle"]'
+            );
+            const aboutText = document.querySelector(
+                '[data-section="about"][data-key="aboutText"]'
+            );
+            const feat1 = document.querySelector(
+                '[data-section="about"][data-key="feat1"]'
+            );
+            const feat2 = document.querySelector(
+                '[data-section="about"][data-key="feat2"]'
+            );
+            const feat3 = document.querySelector(
+                '[data-section="about"][data-key="feat3"]'
+            );
+
+            if (aboutTitle) aboutTitle.textContent = data.aboutTitle;
+            if (aboutText) aboutText.textContent = data.aboutText;
+            if (feat1) feat1.textContent = data.feat1;
+            if (feat2) feat2.textContent = data.feat2;
+            if (feat3) feat3.textContent = data.feat3;
+        };
+
+        const renderEvents = () => {
+            const container = document.getElementById("events-container");
+            if (!container) return;
+
+            const data = state.events || defaultEvents;
+            const events = Array.isArray(data.events) ? data.events : [];
+
+            container.innerHTML = "";
+
+            events.forEach((ev, index) => {
+                const card = document.createElement("div");
+                card.className = "bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow duration-300";
+
+                const iconClass = ev.iconClass || "fa-regular fa-calendar";
+                const badgeClass = ev.badgeClass || "bg-gray-500 text-white";
+
+                card.innerHTML = `
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center mb-4">
+                            <i class="${iconClass} text-2xl mr-3 title-color" style="color: var(--primary-hex)"></i>
+                            <h3 class="editable text-lg leading-6 font-medium text-gray-900"
+                                data-section="events"
+                                data-type="event"
+                                data-index="${index}"
+                                data-field="title"
+                                ${isEditing ? 'contenteditable="true"' : ''}>
+                                ${ev.title || ""}
+                            </h3>
+                        </div>
+                        <p class="editable text-gray-500"
+                           data-section="events"
+                           data-type="event"
+                           data-index="${index}"
+                           data-field="desc"
+                           ${isEditing ? 'contenteditable="true"' : ''}>
+                            ${ev.desc || ""}
+                        </p>
+                        <div class="mt-4 flex items-center justify-between">
+                            <span class="editable inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}"
+                                  data-section="events"
+                                  data-type="event"
+                                  data-index="${index}"
+                                  data-field="date"
+                                  ${isEditing ? 'contenteditable="true"' : ''}>
+                                ${ev.date || ""}
+                            </span>
+                            <div class="admin-image-controls space-x-2 text-xs">
+                                <button type="button"
+                                    class="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+                                    onclick="window.editEventIcon(${index})">
+                                    <i class="fa-solid fa-icons mr-1"></i>Icon
+                                </button>
+                                <button type="button"
+                                    class="px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600"
+                                    onclick="window.removeEvent(${index})">
+                                    <i class="fa-solid fa-trash mr-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        };
+
+        const renderGallery = () => {
+            const grid = document.getElementById("gallery-grid");
+            if (!grid) return;
+
+            const data = state.gallery || defaultGallery;
+            const gallery = Array.isArray(data.gallery) ? data.gallery : [];
+
+            grid.innerHTML = "";
+
+            gallery.forEach((url, index) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "group h-64 bg-gray-200 rounded-lg overflow-hidden relative";
+
+                wrapper.innerHTML = `
+                    <img
+                        class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer"
+                        src="${url}"
+                        alt="Gallery ${index + 1}"
+                        onclick="openImagePopup('${url.replace(/'/g, "\\'")}')"
+                        data-section="gallery"
+                        data-index="${index}"
+                    >
+                    <div class="admin-image-controls absolute bottom-2 right-2 space-x-2 text-xs">
+                        <button type="button"
+                            class="px-2 py-1 rounded bg-black/60 text-white hover:bg-black/80"
+                            onclick="window.editGalleryImage(${index})">
+                            <i class="fa-solid fa-pen mr-1"></i>Edit
+                        </button>
+                        <button type="button"
+                            class="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                            onclick="window.removeGalleryImage(${index})">
+                            <i class="fa-solid fa-trash mr-1"></i>Remove
+                        </button>
+                    </div>
+                `;
+
+                const img = wrapper.querySelector("img");
+                img.onerror = () => {
+                    img.onerror = null;
+                    img.src = "https://placehold.co/800x600/94a3b8/ffffff?text=Image+Missing";
+                };
+
+                grid.appendChild(wrapper);
+            });
+        };
+
+        const renderAll = () => {
+            renderGeneral();
+            renderAbout();
+            renderEvents();
+            renderGallery();
+
+            const yearEl = document.getElementById("year");
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+            if (!initialDataLoaded && allLoaded()) {
+                initialDataLoaded = true;
+                showNotification("Content loaded.", "info");
+            }
+        };
+
+        // ==== CLOUDFLARE KV LOAD & SAVE ====
+
+        const withDefaults = (defaults, data) => ({
+            ...defaults,
+            ...(data || {})
+        });
+
+        async function loadAllContent() {
+            try {
+                const res = await fetch(`${WORKER_API}/content`);
+                if (!res.ok) throw new Error("Failed to load content");
+                const data = await res.json();
+
+                state.general = withDefaults(defaultGeneral, data.general);
+                state.about = withDefaults(defaultAbout, data.about);
+                state.events = withDefaults(defaultEvents, data.events);
+                state.gallery = withDefaults(defaultGallery, data.gallery);
+
+                renderAll();
+            } catch (e) {
+                console.error("Error loading content from Worker:", e);
+                state.general = { ...defaultGeneral };
+                state.about = { ...defaultAbout };
+                state.events = { ...defaultEvents };
+                state.gallery = { ...defaultGallery };
+                renderAll();
+            }
         }
-        return result.url;
-    }
 
-    // ==== RENDERING FUNCTIONS ====
+        const saveSectionToKV = async (sectionName) => {
+            if (!state[sectionName]) return;
+            try {
+                await fetch(`${WORKER_API}/content/update`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        section: sectionName,
+                        data: state[sectionName]
+                    })
+                });
+            } catch (e) {
+                console.error("Error saving section", sectionName, e);
+                showNotification("Error saving content. Check console.", "error");
+            }
+        };
 
-    const renderGeneral = () => {
-        const data = state.general || defaultGeneral;
+        const updateStateFromDOM = () => {
+            // General & About
+            document.querySelectorAll(".editable").forEach((el) => {
+                const section = el.getAttribute("data-section");
+                const key = el.getAttribute("data-key");
+                const type = el.getAttribute("data-type");
 
-        const clubNameEl = document.getElementById("club-name");
-        if (clubNameEl) clubNameEl.textContent = data.clubName;
+                if (!section || !state[section]) return;
+                if (section === "events" && type === "event") return;
 
-        const heroTitleEl = document.querySelector(
-            '[data-section="general"][data-key="heroTitle"]'
-        );
-        const heroSubtitleEl = document.querySelector(
-            '[data-section="general"][data-key="heroSubtitle"]'
-        );
-        if (heroTitleEl) heroTitleEl.textContent = data.heroTitle;
-        if (heroSubtitleEl) heroSubtitleEl.textContent = data.heroSubtitle;
+                if (key) {
+                    state[section][key] = el.textContent.trim();
+                }
+            });
 
-        const heroImg = document.getElementById("hero-bg-img");
-        if (heroImg) {
-            heroImg.src = data.heroBg;
+            // Events array
+            const eventNodes = document.querySelectorAll(
+                '[data-section="events"][data-type="event"]'
+            );
+            const eventsMap = {};
+            eventNodes.forEach((el) => {
+                const index = parseInt(el.getAttribute("data-index"), 10);
+                const field = el.getAttribute("data-field");
+                if (Number.isNaN(index) || !field) return;
+                if (!eventsMap[index]) eventsMap[index] = {};
+                eventsMap[index][field] = el.textContent.trim();
+            });
+
+            const currentEvents = (state.events && state.events.events) || [];
+            const newEventsArray = Object.keys(eventsMap)
+                .map((k) => parseInt(k, 10))
+                .sort((a, b) => a - b)
+                .map((idx) => {
+                    const original = currentEvents[idx] || {};
+                    return {
+                        ...original,
+                        ...eventsMap[idx]
+                    };
+                });
+
+            if (newEventsArray.length > 0) {
+                state.events.events = newEventsArray;
+            }
+        };
+
+        const saveAllSections = async () => {
+            updateStateFromDOM();
+            await Promise.all([
+                saveSectionToKV("general"),
+                saveSectionToKV("about"),
+                saveSectionToKV("events"),
+                saveSectionToKV("gallery")
+            ]);
+            showNotification("Content saved successfully!", "success");
+        };
+
+        // ==== THEME FUNCTIONS ====
+        window.setPrimaryColor = (color) => {
+            const general = state.general || (state.general = { ...defaultGeneral });
+            general.primaryColor = color;
+            updateTailwindColors(
+                general.primaryColor,
+                general.secondaryColor || defaultGeneral.secondaryColor
+            );
+            if (adminLoggedIn) saveSectionToKV("general");
+        };
+
+        window.setSecondaryColor = (color) => {
+            const general = state.general || (state.general = { ...defaultGeneral });
+            general.secondaryColor = color;
+            updateTailwindColors(
+                general.primaryColor || defaultGeneral.primaryColor,
+                general.secondaryColor
+            );
+            if (adminLoggedIn) saveSectionToKV("general");
+        };
+
+        window.setHeroImage = (url) => {
+            const heroImg = document.getElementById("hero-bg-img");
+            if (!heroImg) return;
+            heroImg.src = url;
             heroImg.onerror = () => {
                 heroImg.onerror = null;
                 heroImg.src = "https://placehold.co/1920x600/0f172a/ffffff?text=Image+Missing";
             };
-        }
 
-        const addressEl = document.querySelector(
-            '[data-section="general"][data-key="address"]'
-        );
-        const phoneEl = document.querySelector(
-            '[data-section="general"][data-key="phone"]'
-        );
-        const emailEl = document.querySelector(
-            '[data-section="general"][data-key="email"]'
-        );
-        if (addressEl) addressEl.textContent = data.address;
-        if (phoneEl) phoneEl.textContent = data.phone;
-        if (emailEl) emailEl.textContent = data.email;
+            const general = state.general || (state.general = { ...defaultGeneral });
+            general.heroBg = url;
+            if (adminLoggedIn) saveSectionToKV("general");
+        };
 
-        const primary = data.primaryColor || defaultGeneral.primaryColor;
-        const secondary = data.secondaryColor || defaultGeneral.secondaryColor;
-        updateTailwindColors(primary, secondary);
+        // Fixed hero image upload
+        window.uploadHeroImage = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to upload images.", "info");
+                return;
+            }
 
-        const secondaryInput = document.getElementById("custom-secondary");
-        const primaryInput = document.getElementById("custom-primary");
-        const heroInput = document.getElementById("hero-bg-input");
-        if (primaryInput) primaryInput.value = primary;
-        if (secondaryInput) secondaryInput.value = secondary;
-        if (heroInput) heroInput.value = data.heroBg || "";
-    };
+            if (!heroFileInputEl) {
+                showNotification("File input not ready.", "error");
+                return;
+            }
 
-    const renderAbout = () => {
-        const data = state.about || defaultAbout;
-
-        const aboutTitle = document.querySelector(
-            '[data-section="about"][data-key="aboutTitle"]'
-        );
-        const aboutText = document.querySelector(
-            '[data-section="about"][data-key="aboutText"]'
-        );
-        const feat1 = document.querySelector(
-            '[data-section="about"][data-key="feat1"]'
-        );
-        const feat2 = document.querySelector(
-            '[data-section="about"][data-key="feat2"]'
-        );
-        const feat3 = document.querySelector(
-            '[data-section="about"][data-key="feat3"]'
-        );
-
-        if (aboutTitle) aboutTitle.textContent = data.aboutTitle;
-        if (aboutText) aboutText.textContent = data.aboutText;
-        if (feat1) feat1.textContent = data.feat1;
-        if (feat2) feat2.textContent = data.feat2;
-        if (feat3) feat3.textContent = data.feat3;
-    };
-
-    const renderEvents = () => {
-        const container = document.getElementById("events-container");
-        if (!container) return;
-
-        const data = state.events || defaultEvents;
-        const events = Array.isArray(data.events) ? data.events : [];
-
-        container.innerHTML = "";
-
-        events.forEach((ev, index) => {
-            const card = document.createElement("div");
-            card.className = "bg-white overflow-hidden shadow rounded-lg hover:shadow-xl transition-shadow duration-300";
-
-            const iconClass = ev.iconClass || "fa-regular fa-calendar";
-            const badgeClass = ev.badgeClass || "bg-gray-500 text-white";
-
-            card.innerHTML = `
-                <div class="px-4 py-5 sm:p-6">
-                    <div class="flex items-center mb-4">
-                        <i class="${iconClass} text-2xl mr-3 title-color" style="color: var(--primary-hex)"></i>
-                        <h3 class="editable text-lg leading-6 font-medium text-gray-900"
-                            data-section="events"
-                            data-type="event"
-                            data-index="${index}"
-                            data-field="title"
-                            ${isEditing ? 'contenteditable="true"' : ''}>
-                            ${ev.title || ""}
-                        </h3>
-                    </div>
-                    <p class="editable text-gray-500"
-                       data-section="events"
-                       data-type="event"
-                       data-index="${index}"
-                       data-field="desc"
-                       ${isEditing ? 'contenteditable="true"' : ''}>
-                        ${ev.desc || ""}
-                    </p>
-                    <div class="mt-4 flex items-center justify-between">
-                        <span class="editable inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}"
-                              data-section="events"
-                              data-type="event"
-                              data-index="${index}"
-                              data-field="date"
-                              ${isEditing ? 'contenteditable="true"' : ''}>
-                            ${ev.date || ""}
-                        </span>
-                        <div class="admin-image-controls space-x-2 text-xs">
-                            <button type="button"
-                                class="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
-                                onclick="window.editEventIcon(${index})">
-                                <i class="fa-solid fa-icons mr-1"></i>Icon
-                            </button>
-                            <button type="button"
-                                class="px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600"
-                                onclick="window.removeEvent(${index})">
-                                <i class="fa-solid fa-trash mr-1"></i>Remove
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(card);
-        });
-    };
-
-    const renderGallery = () => {
-        const grid = document.getElementById("gallery-grid");
-        if (!grid) return;
-
-        const data = state.gallery || defaultGallery;
-        const gallery = Array.isArray(data.gallery) ? data.gallery : [];
-
-        grid.innerHTML = "";
-
-        gallery.forEach((url, index) => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "group h-64 bg-gray-200 rounded-lg overflow-hidden relative";
-
-            wrapper.innerHTML = `
-                <img
-                    class="w-full h-full object-cover hover:scale-110 transition-transform duration-500 cursor-pointer"
-                    src="${url}"
-                    alt="Gallery ${index + 1}"
-                    onclick="openImagePopup('${url.replace(/'/g, "\\'")}')"
-                    data-section="gallery"
-                    data-index="${index}"
-                >
-                <div class="admin-image-controls absolute bottom-2 right-2 space-x-2 text-xs">
-                    <button type="button"
-                        class="px-2 py-1 rounded bg-black/60 text-white hover:bg-black/80"
-                        onclick="window.editGalleryImage(${index})">
-                        <i class="fa-solid fa-pen mr-1"></i>Edit
-                    </button>
-                    <button type="button"
-                        class="px-2 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-                        onclick="window.removeGalleryImage(${index})">
-                        <i class="fa-solid fa-trash mr-1"></i>Remove
-                    </button>
-                </div>
-            `;
-
-            const img = wrapper.querySelector("img");
-            img.onerror = () => {
-                img.onerror = null;
-                img.src = "https://placehold.co/800x600/94a3b8/ffffff?text=Image+Missing";
+            pendingHeroUploadAction = async (file) => {
+                try {
+                    showNotification("Uploading hero image...", "info");
+                    const url = await uploadToR2(file, "hero");
+                    setHeroImage(url);
+                    showNotification("Hero image uploaded successfully!", "success");
+                } catch (err) {
+                    console.error(err);
+                    showNotification("Hero image upload failed.", "error");
+                }
             };
+            heroFileInputEl.click();
+        };
 
-            grid.appendChild(wrapper);
-        });
-    };
+        window.uploadLogo = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to upload logo.", "info");
+                return;
+            }
 
-    const renderAll = () => {
-        renderGeneral();
-        renderAbout();
-        renderEvents();
-        renderGallery();
+            if (!logoFileInputEl) {
+                showNotification("File input not ready.", "error");
+                return;
+            }
 
-        const yearEl = document.getElementById("year");
-        if (yearEl) yearEl.textContent = new Date().getFullYear();
+            pendingLogoUploadAction = async (file) => {
+                try {
+                    showNotification("Uploading logo...", "info");
+                    const url = await uploadToR2(file, "logo");
 
-        if (!initialDataLoaded && allLoaded()) {
-            initialDataLoaded = true;
-            showNotification("Content loaded.", "info");
-        }
-    };
+                    const general = state.general || (state.general = { ...defaultGeneral });
+                    general.logo = url;
+                    renderGeneral();
+                    if (adminLoggedIn) saveSectionToKV("general");
 
-    // ==== CLOUDFLARE KV LOAD & SAVE ====
+                    showNotification("Logo updated successfully!", "success");
+                } catch (err) {
+                    console.error(err);
+                    showNotification("Logo upload failed.", "error");
+                }
+            };
+            logoFileInputEl.click();
+        };
 
-    const withDefaults = (defaults, data) => ({
-        ...defaults,
-        ...(data || {})
-    });
-
-    async function loadAllContent() {
-        try {
-            const res = await fetch(`${WORKER_API}/content`);
-            if (!res.ok) throw new Error("Failed to load content");
-            const data = await res.json();
-
-            state.general = withDefaults(defaultGeneral, data.general);
-            state.about = withDefaults(defaultAbout, data.about);
-            state.events = withDefaults(defaultEvents, data.events);
-            state.gallery = withDefaults(defaultGallery, data.gallery);
-
-            renderAll();
-        } catch (e) {
-            console.error("Error loading content from Worker:", e);
+        window.resetDefaults = () => {
+            if (!confirm("Reset all content to defaults? This cannot be undone.")) return;
             state.general = { ...defaultGeneral };
             state.about = { ...defaultAbout };
             state.events = { ...defaultEvents };
             state.gallery = { ...defaultGallery };
             renderAll();
-        }
-    }
+            if (adminLoggedIn) saveAllSections();
+        };
 
-    const saveSectionToKV = async (sectionName) => {
-        if (!state[sectionName]) return;
-        try {
-            await fetch(`${WORKER_API}/content/update`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    section: sectionName,
-                    data: state[sectionName]
-                })
-            });
-        } catch (e) {
-            console.error("Error saving section", sectionName, e);
-            showNotification("Error saving content. Check console.", "error");
-        }
-    };
-
-    const updateStateFromDOM = () => {
-        // General & About
-        document.querySelectorAll(".editable").forEach((el) => {
-            const section = el.getAttribute("data-section");
-            const key = el.getAttribute("data-key");
-            const type = el.getAttribute("data-type");
-
-            if (!section || !state[section]) return;
-            if (section === "events" && type === "event") return;
-
-            if (key) {
-                state[section][key] = el.textContent.trim();
+        // ==== GALLERY ADMIN ACTIONS ====
+        window.addGalleryImage = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add images.", "info");
+                return;
             }
-        });
 
-        // Events array
-        const eventNodes = document.querySelectorAll(
-            '[data-section="events"][data-type="event"]'
-        );
-        const eventsMap = {};
-        eventNodes.forEach((el) => {
-            const index = parseInt(el.getAttribute("data-index"), 10);
-            const field = el.getAttribute("data-field");
-            if (Number.isNaN(index) || !field) return;
-            if (!eventsMap[index]) eventsMap[index] = {};
-            eventsMap[index][field] = el.textContent.trim();
-        });
+            const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
+            if (!Array.isArray(galleryState.gallery)) {
+                galleryState.gallery = [];
+            }
 
-        const currentEvents = (state.events && state.events.events) || [];
-        const newEventsArray = Object.keys(eventsMap)
-            .map((k) => parseInt(k, 10))
-            .sort((a, b) => a - b)
-            .map((idx) => {
-                const original = currentEvents[idx] || {};
-                return {
-                    ...original,
-                    ...eventsMap[idx]
+            const useLocal = confirm(
+                "Click OK to upload a photo from this device, or Cancel to paste an image URL."
+            );
+
+            if (useLocal) {
+                if (!galleryFileInputEl) {
+                    showNotification("File input not ready.", "error");
+                    return;
+                }
+                pendingGalleryUploadAction = async (file) => {
+                    try {
+                        showNotification("Uploading image...", "info");
+                        const url = await uploadToR2(file, "gallery");
+                        galleryState.gallery.push(url);
+                        renderGallery();
+                        await saveSectionToKV("gallery");
+                        showNotification("Image uploaded and added to gallery.", "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Image upload failed.", "error");
+                    }
                 };
+                galleryFileInputEl.click();
+            } else {
+                const url = prompt("Enter image URL:");
+                if (!url) return;
+                galleryState.gallery.push(url.trim());
+                renderGallery();
+                saveSectionToKV("gallery");
+            }
+        };
+
+        window.editGalleryImage = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit images.", "info");
+                return;
+            }
+
+            const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
+            if (!Array.isArray(galleryState.gallery) || index < 0 || index >= galleryState.gallery.length) {
+                return;
+            }
+
+            const choice = prompt(
+                "Type 1 to change URL, or 2 to upload a new local photo.",
+                "2"
+            );
+            if (!choice) return;
+
+            if (choice.trim() === "1") {
+                const currentUrl = galleryState.gallery[index];
+                const url = prompt("Enter new image URL:", currentUrl);
+                if (!url) return;
+                galleryState.gallery[index] = url.trim();
+                renderGallery();
+                saveSectionToKV("gallery");
+            } else {
+                if (!galleryFileInputEl) {
+                    showNotification("File input not ready.", "error");
+                    return;
+                }
+                pendingGalleryUploadAction = async (file) => {
+                    try {
+                        showNotification("Uploading image...", "info");
+                        const url = await uploadToR2(file, "gallery");
+                        galleryState.gallery[index] = url;
+                        renderGallery();
+                        await saveSectionToKV("gallery");
+                        showNotification("Image updated.", "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Image upload failed.", "error");
+                    }
+                };
+                galleryFileInputEl.click();
+            }
+        };
+
+        window.removeGalleryImage = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove images.", "info");
+                return;
+            }
+
+            const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
+
+            if (!Array.isArray(galleryState.gallery) || index < 0 || index >= galleryState.gallery.length) {
+                return;
+            }
+
+            if (!confirm("Remove this image from gallery?")) return;
+
+            galleryState.gallery.splice(index, 1);
+            renderGallery();
+            saveSectionToKV("gallery");
+        };
+
+        // ==== EVENTS ADMIN ACTIONS ====
+        window.addEvent = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add events.", "info");
+                return;
+            }
+
+            const eventsState = state.events || (state.events = { ...defaultEvents });
+
+            if (!Array.isArray(eventsState.events)) {
+                eventsState.events = [];
+            }
+
+            eventsState.events.push({
+                title: "New Event",
+                desc: "Event description...",
+                date: "Date TBD",
+                iconClass: "fa-regular fa-calendar",
+                badgeClass: "bg-gray-500 text-white"
             });
 
-        if (newEventsArray.length > 0) {
-            state.events.events = newEventsArray;
-        }
-    };
-
-    const saveAllSections = async () => {
-        updateStateFromDOM();
-        await Promise.all([
-            saveSectionToKV("general"),
-            saveSectionToKV("about"),
-            saveSectionToKV("events"),
-            saveSectionToKV("gallery")
-        ]);
-        showNotification("Content saved successfully!", "success");
-    };
-
-    // ==== THEME FUNCTIONS ====
-    window.setPrimaryColor = (color) => {
-        const general = state.general || (state.general = { ...defaultGeneral });
-        general.primaryColor = color;
-        updateTailwindColors(
-            general.primaryColor,
-            general.secondaryColor || defaultGeneral.secondaryColor
-        );
-        if (adminLoggedIn) saveSectionToKV("general");
-    };
-
-    window.setSecondaryColor = (color) => {
-        const general = state.general || (state.general = { ...defaultGeneral });
-        general.secondaryColor = color;
-        updateTailwindColors(
-            general.primaryColor || defaultGeneral.primaryColor,
-            general.secondaryColor
-        );
-        if (adminLoggedIn) saveSectionToKV("general");
-    };
-
-    window.setHeroImage = (url) => {
-        const heroImg = document.getElementById("hero-bg-img");
-        if (!heroImg) return;
-        heroImg.src = url;
-        heroImg.onerror = () => {
-            heroImg.onerror = null;
-            heroImg.src = "https://placehold.co/1920x600/0f172a/ffffff?text=Image+Missing";
-        };
-
-        const general = state.general || (state.general = { ...defaultGeneral });
-        general.heroBg = url;
-        if (adminLoggedIn) saveSectionToKV("general");
-    };
-
-    // Fixed hero image upload
-    window.uploadHeroImage = () => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to upload images.", "info");
-            return;
-        }
-
-        if (!heroFileInputEl) {
-            showNotification("File input not ready.", "error");
-            return;
-        }
-
-        pendingHeroUploadAction = async (file) => {
-            try {
-                showNotification("Uploading hero image...", "info");
-                const url = await uploadToR2(file, "hero");
-                setHeroImage(url);
-                showNotification("Hero image uploaded successfully!", "success");
-            } catch (err) {
-                console.error(err);
-                showNotification("Hero image upload failed.", "error");
-            }
-        };
-        heroFileInputEl.click();
-    };
-
-    window.resetDefaults = () => {
-        if (!confirm("Reset all content to defaults? This cannot be undone.")) return;
-        state.general = { ...defaultGeneral };
-        state.about = { ...defaultAbout };
-        state.events = { ...defaultEvents };
-        state.gallery = { ...defaultGallery };
-        renderAll();
-        if (adminLoggedIn) saveAllSections();
-    };
-
-    // ==== GALLERY ADMIN ACTIONS ====
-    window.addGalleryImage = () => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to add images.", "info");
-            return;
-        }
-
-        const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
-        if (!Array.isArray(galleryState.gallery)) {
-            galleryState.gallery = [];
-        }
-
-        const useLocal = confirm(
-            "Click OK to upload a photo from this device, or Cancel to paste an image URL."
-        );
-
-        if (useLocal) {
-            if (!galleryFileInputEl) {
-                showNotification("File input not ready.", "error");
-                return;
-            }
-            pendingGalleryUploadAction = async (file) => {
-                try {
-                    showNotification("Uploading image...", "info");
-                    const url = await uploadToR2(file, "gallery");
-                    galleryState.gallery.push(url);
-                    renderGallery();
-                    await saveSectionToKV("gallery");
-                    showNotification("Image uploaded and added to gallery.", "success");
-                } catch (err) {
-                    console.error(err);
-                    showNotification("Image upload failed.", "error");
-                }
-            };
-            galleryFileInputEl.click();
-        } else {
-            const url = prompt("Enter image URL:");
-            if (!url) return;
-            galleryState.gallery.push(url.trim());
-            renderGallery();
-            saveSectionToKV("gallery");
-        }
-    };
-
-    window.editGalleryImage = (index) => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to edit images.", "info");
-            return;
-        }
-
-        const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
-        if (!Array.isArray(galleryState.gallery) || index < 0 || index >= galleryState.gallery.length) {
-            return;
-        }
-
-        const choice = prompt(
-            "Type 1 to change URL, or 2 to upload a new local photo.",
-            "2"
-        );
-        if (!choice) return;
-
-        if (choice.trim() === "1") {
-            const currentUrl = galleryState.gallery[index];
-            const url = prompt("Enter new image URL:", currentUrl);
-            if (!url) return;
-            galleryState.gallery[index] = url.trim();
-            renderGallery();
-            saveSectionToKV("gallery");
-        } else {
-            if (!galleryFileInputEl) {
-                showNotification("File input not ready.", "error");
-                return;
-            }
-            pendingGalleryUploadAction = async (file) => {
-                try {
-                    showNotification("Uploading image...", "info");
-                    const url = await uploadToR2(file, "gallery");
-                    galleryState.gallery[index] = url;
-                    renderGallery();
-                    await saveSectionToKV("gallery");
-                    showNotification("Image updated.", "success");
-                } catch (err) {
-                    console.error(err);
-                    showNotification("Image upload failed.", "error");
-                }
-            };
-            galleryFileInputEl.click();
-        }
-    };
-
-    window.removeGalleryImage = (index) => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to remove images.", "info");
-            return;
-        }
-
-        const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
-
-        if (!Array.isArray(galleryState.gallery) || index < 0 || index >= galleryState.gallery.length) {
-            return;
-        }
-
-        if (!confirm("Remove this image from gallery?")) return;
-
-        galleryState.gallery.splice(index, 1);
-        renderGallery();
-        saveSectionToKV("gallery");
-    };
-
-    // ==== EVENTS ADMIN ACTIONS ====
-    window.addEvent = () => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to add events.", "info");
-            return;
-        }
-
-        const eventsState = state.events || (state.events = { ...defaultEvents });
-
-        if (!Array.isArray(eventsState.events)) {
-            eventsState.events = [];
-        }
-
-        eventsState.events.push({
-            title: "New Event",
-            desc: "Event description...",
-            date: "Date TBD",
-            iconClass: "fa-regular fa-calendar",
-            badgeClass: "bg-gray-500 text-white"
-        });
-
-        renderEvents();
-        saveSectionToKV("events");
-        showNotification("New event added. Click on text to edit.", "success");
-    };
-
-    window.editEventIcon = (index) => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to edit events.", "info");
-            return;
-        }
-
-        const eventsState = state.events || (state.events = { ...defaultEvents });
-
-        if (!Array.isArray(eventsState.events) || index < 0 || index >= eventsState.events.length) {
-            return;
-        }
-
-        const iconOptions = [
-            { name: "Calendar", class: "fa-regular fa-calendar-check", badge: "bg-green-500 text-white" },
-            { name: "Music", class: "fa-solid fa-music", badge: "bg-blue-500 text-white" },
-            { name: "Heart", class: "fa-solid fa-hand-holding-heart", badge: "bg-orange-500 text-white" },
-            { name: "Trophy", class: "fa-solid fa-trophy", badge: "bg-yellow-500 text-white" },
-            { name: "Star", class: "fa-solid fa-star", badge: "bg-purple-500 text-white" },
-            { name: "Flag", class: "fa-solid fa-flag", badge: "bg-red-500 text-white" }
-        ];
-
-        const choice = prompt(
-            "Choose icon (1-6):\n1. Calendar\n2. Music\n3. Heart/Charity\n4. Trophy\n5. Star\n6. Flag",
-            "1"
-        );
-
-        const idx = parseInt(choice, 10) - 1;
-        if (idx >= 0 && idx < iconOptions.length) {
-            eventsState.events[index].iconClass = iconOptions[idx].class;
-            eventsState.events[index].badgeClass = iconOptions[idx].badge;
             renderEvents();
             saveSectionToKV("events");
-        }
-    };
+            showNotification("New event added. Click on text to edit.", "success");
+        };
 
-    window.removeEvent = (index) => {
-        if (!adminLoggedIn || !isEditing) {
-            showNotification("Enable admin edit mode to remove events.", "info");
-            return;
-        }
-
-        const eventsState = state.events || (state.events = { ...defaultEvents });
-
-        if (!Array.isArray(eventsState.events) || index < 0 || index >= eventsState.events.length) {
-            return;
-        }
-
-        if (!confirm("Remove this event?")) return;
-
-        eventsState.events.splice(index, 1);
-        renderEvents();
-        saveSectionToKV("events");
-        showNotification("Event removed.", "success");
-    };
-
-    // ==== CONTACT FORM ====
-    window.handleContactSubmit = (event) => {
-        event.preventDefault();
-        const form = event.target;
-        form.reset();
-        showNotification("Thank you! Your message has been sent.", "success");
-    };
-
-    // ==== ADMIN LOGIN & EDIT MODE ====
-    window.toggleSettings = () => {
-        if (!adminLoggedIn) {
-            const modal = document.getElementById("login-modal");
-            if (modal) modal.style.display = "flex";
-            return;
-        }
-        const panel = document.getElementById("settings-panel");
-        if (!panel) return;
-        panel.classList.toggle("hidden");
-    };
-
-    window.handleAdminLogin = () => {
-        const usernameInput = document.getElementById("admin-username");
-        const passwordInput = document.getElementById("admin-password");
-        const loginModal = document.getElementById("login-modal");
-
-        const username = usernameInput ? usernameInput.value : "";
-        const password = passwordInput ? passwordInput.value : "";
-
-        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            adminLoggedIn = true;
-            if (loginModal) loginModal.style.display = "none";
-
-            const statusIcon = document.getElementById("admin-status-icon");
-            if (statusIcon) {
-                statusIcon.classList.remove("text-red-500");
-                statusIcon.classList.add("text-green-500");
-                statusIcon.setAttribute("title", "Admin Logged In");
+        window.editEventIcon = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit events.", "info");
+                return;
             }
-            showNotification("Admin login successful!", "success");
-            
-            // Clear form
-            if (usernameInput) usernameInput.value = "";
-            if (passwordInput) passwordInput.value = "";
-            
-            window.toggleEditMode();
-        } else {
-            const err = document.getElementById("login-error");
-            if (err) err.textContent = "Invalid username or password.";
-            showNotification("Login failed.", "error");
-        }
-    };
 
-    window.toggleEditMode = () => {
-        if (!adminLoggedIn) {
+            const eventsState = state.events || (state.events = { ...defaultEvents });
+
+            if (!Array.isArray(eventsState.events) || index < 0 || index >= eventsState.events.length) {
+                return;
+            }
+
+            const iconOptions = [
+                { name: "Calendar", class: "fa-regular fa-calendar-check", badge: "bg-green-500 text-white" },
+                { name: "Music", class: "fa-solid fa-music", badge: "bg-blue-500 text-white" },
+                { name: "Heart", class: "fa-solid fa-hand-holding-heart", badge: "bg-orange-500 text-white" },
+                { name: "Trophy", class: "fa-solid fa-trophy", badge: "bg-yellow-500 text-white" },
+                { name: "Star", class: "fa-solid fa-star", badge: "bg-purple-500 text-white" },
+                { name: "Flag", class: "fa-solid fa-flag", badge: "bg-red-500 text-white" }
+            ];
+
+            const choice = prompt(
+                "Choose icon (1-6):\n1. Calendar\n2. Music\n3. Heart/Charity\n4. Trophy\n5. Star\n6. Flag",
+                "1"
+            );
+
+            const idx = parseInt(choice, 10) - 1;
+            if (idx >= 0 && idx < iconOptions.length) {
+                eventsState.events[index].iconClass = iconOptions[idx].class;
+                eventsState.events[index].badgeClass = iconOptions[idx].badge;
+                renderEvents();
+                saveSectionToKV("events");
+            }
+        };
+
+        window.removeEvent = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove events.", "info");
+                return;
+            }
+
+            const eventsState = state.events || (state.events = { ...defaultEvents });
+
+            if (!Array.isArray(eventsState.events) || index < 0 || index >= eventsState.events.length) {
+                return;
+            }
+
+            if (!confirm("Remove this event?")) return;
+
+            eventsState.events.splice(index, 1);
+            renderEvents();
+            saveSectionToKV("events");
+            showNotification("Event removed.", "success");
+        };
+
+        // ==== CONTACT FORM ====
+        window.handleContactSubmit = (event) => {
+            event.preventDefault();
+            const form = event.target;
+            form.reset();
+            showNotification("Thank you! Your message has been sent.", "success");
+        };
+
+        // ==== ADMIN LOGIN & EDIT MODE ====
+        window.toggleSettings = () => {
+            if (!adminLoggedIn) {
+                const modal = document.getElementById("login-modal");
+                if (modal) modal.style.display = "flex";
+                return;
+            }
+            const panel = document.getElementById("settings-panel");
+            if (!panel) return;
+            panel.classList.toggle("hidden");
+        };
+
+        window.handleAdminLogin = () => {
+            const usernameInput = document.getElementById("admin-username");
+            const passwordInput = document.getElementById("admin-password");
+            const loginModal = document.getElementById("login-modal");
+
+            const username = usernameInput ? usernameInput.value : "";
+            const password = passwordInput ? passwordInput.value : "";
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                adminLoggedIn = true;
+                if (loginModal) loginModal.style.display = "none";
+
+                const statusIcon = document.getElementById("admin-status-icon");
+                if (statusIcon) {
+                    statusIcon.classList.remove("text-red-500");
+                    statusIcon.classList.add("text-green-500");
+                    statusIcon.setAttribute("title", "Admin Logged In");
+                }
+                showNotification("Admin login successful!", "success");
+
+                // Clear form
+                if (usernameInput) usernameInput.value = "";
+                if (passwordInput) passwordInput.value = "";
+
+                window.toggleEditMode();
+            } else {
+                const err = document.getElementById("login-error");
+                if (err) err.textContent = "Invalid username or password.";
+                showNotification("Login failed.", "error");
+            }
+        };
+
+        window.toggleEditMode = () => {
+            if (!adminLoggedIn) {
+                const modal = document.getElementById("login-modal");
+                if (modal) modal.style.display = "flex";
+                return;
+            }
+
+            if (isEditing) {
+                // Save changes before exiting edit mode
+                saveAllSections();
+            }
+
+            isEditing = !isEditing;
+            const editBtn = document.getElementById("edit-btn");
+            if (!editBtn) return;
+            const editIcon = editBtn.querySelector("i");
+
+            if (isEditing) {
+                document.body.classList.add("editing");
+                editBtn.classList.remove("bg-red-500");
+                editBtn.classList.add("bg-green-500");
+                if (editIcon) editIcon.className = "fa-solid fa-save text-xl";
+                editBtn.setAttribute("title", "Save Changes");
+
+                document.querySelectorAll(".editable").forEach((el) => {
+                    el.setAttribute("contenteditable", "true");
+                });
+
+                showNotification("Edit mode enabled. Click text to edit.", "info");
+            } else {
+                document.body.classList.remove("editing");
+                editBtn.classList.remove("bg-green-500");
+                editBtn.classList.add("bg-red-500");
+                if (editIcon) editIcon.className = "fa-solid fa-pen text-xl";
+                editBtn.setAttribute("title", "Enable Editing");
+
+                document.querySelectorAll(".editable").forEach((el) => {
+                    el.setAttribute("contenteditable", "false");
+                });
+
+                showNotification("Changes saved and edit mode disabled.", "success");
+            }
+        };
+
+        window.closeLoginModal = () => {
             const modal = document.getElementById("login-modal");
-            if (modal) modal.style.display = "flex";
-            return;
-        }
+            if (modal) modal.style.display = "none";
+            const err = document.getElementById("login-error");
+            if (err) err.textContent = "";
+        };
 
-        if (isEditing) {
-            // Save changes before exiting edit mode
-            saveAllSections();
-        }
+        // ==== APP INIT ====
+        window.onload = async () => {
+            initLightboxClose();
 
-        isEditing = !isEditing;
-        const editBtn = document.getElementById("edit-btn");
-        if (!editBtn) return;
-        const editIcon = editBtn.querySelector("i");
+            // Init hidden gallery file input
+            galleryFileInputEl = document.getElementById("gallery-file-input");
+            if (galleryFileInputEl) {
+                galleryFileInputEl.addEventListener("change", async (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file || !pendingGalleryUploadAction) {
+                        e.target.value = "";
+                        return;
+                    }
+                    try {
+                        await pendingGalleryUploadAction(file);
+                    } finally {
+                        pendingGalleryUploadAction = null;
+                        e.target.value = "";
+                    }
+                });
+            }
 
-        if (isEditing) {
-            document.body.classList.add("editing");
-            editBtn.classList.remove("bg-red-500");
-            editBtn.classList.add("bg-green-500");
-            if (editIcon) editIcon.className = "fa-solid fa-save text-xl";
-            editBtn.setAttribute("title", "Save Changes");
+            // Init hidden hero file input
+            heroFileInputEl = document.getElementById("hero-file-input");
+            if (heroFileInputEl) {
+                heroFileInputEl.addEventListener("change", async (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file || !pendingHeroUploadAction) {
+                        e.target.value = "";
+                        return;
+                    }
+                    try {
+                        await pendingHeroUploadAction(file);
+                    } finally {
+                        pendingHeroUploadAction = null;
+                        e.target.value = "";
+                    }
+                });
+            }
 
-            document.querySelectorAll(".editable").forEach((el) => {
-                el.setAttribute("contenteditable", "true");
-            });
+            // Init hidden logo file input
+            logoFileInputEl = document.getElementById("logo-file-input");
+            if (logoFileInputEl) {
+                logoFileInputEl.addEventListener("change", async (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file || !pendingLogoUploadAction) {
+                        e.target.value = "";
+                        return;
+                    }
+                    try {
+                        await pendingLogoUploadAction(file);
+                    } finally {
+                        pendingLogoUploadAction = null;
+                        e.target.value = "";
+                    }
+                });
+            }
 
-            showNotification("Edit mode enabled. Click text to edit.", "info");
-        } else {
-            document.body.classList.remove("editing");
-            editBtn.classList.remove("bg-green-500");
-            editBtn.classList.add("bg-red-500");
-            if (editIcon) editIcon.className = "fa-solid fa-pen text-xl";
-            editBtn.setAttribute("title", "Enable Editing");
+            const yearEl = document.getElementById("year");
+            if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-            document.querySelectorAll(".editable").forEach((el) => {
-                el.setAttribute("contenteditable", "false");
-            });
+            await loadAllContent();
+        };
+    </script>
 
-            showNotification("Changes saved and edit mode disabled.", "success");
-        }
-    };
-
-    window.closeLoginModal = () => {
-        const modal = document.getElementById("login-modal");
-        if (modal) modal.style.display = "none";
-        const err = document.getElementById("login-error");
-        if (err) err.textContent = "";
-    };
-
-    // ==== APP INIT ====
-    window.onload = async () => {
-        initLightboxClose();
-
-        // Init hidden gallery file input
-        galleryFileInputEl = document.getElementById("gallery-file-input");
-        if (galleryFileInputEl) {
-            galleryFileInputEl.addEventListener("change", async (e) => {
-                const file = e.target.files && e.target.files[0];
-                if (!file || !pendingGalleryUploadAction) {
-                    e.target.value = "";
-                    return;
-                }
-                try {
-                    await pendingGalleryUploadAction(file);
-                } finally {
-                    pendingGalleryUploadAction = null;
-                    e.target.value = "";
-                }
-            });
-        }
-
-        // Init hidden hero file input
-        heroFileInputEl = document.getElementById("hero-file-input");
-        if (heroFileInputEl) {
-            heroFileInputEl.addEventListener("change", async (e) => {
-                const file = e.target.files && e.target.files[0];
-                if (!file || !pendingHeroUploadAction) {
-                    e.target.value = "";
-                    return;
-                }
-                try {
-                    await pendingHeroUploadAction(file);
-                } finally {
-                    pendingHeroUploadAction = null;
-                    e.target.value = "";
-                }
-            });
-        }
-
-        const yearEl = document.getElementById("year");
-        if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-        await loadAllContent();
-    };
-</script>
-
-<!-- NAVBAR -->
-<nav id="navbar" class="bg-gray-900 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300" style="background-color: var(--secondary-hex);">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <div class="flex items-center">
-                <i class="fa-solid fa-anchor text-2xl mr-3" style="color: var(--primary-hex);"></i>
-                <span id="club-name" class="editable font-bold text-xl" data-section="general" data-key="clubName">New Pallavi Arts & Sports Boat Club</span>
-            </div>
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
-                    <a href="#home" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
-                    <a href="#about" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">About</a>
-                    <a href="#events" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Events</a>
-                    <a href="#gallery" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Gallery</a>
-                    <a href="#contact" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+    <!-- NAVBAR -->
+    <nav id="navbar" class="bg-gray-900 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300"
+        style="background-color: var(--secondary-hex);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="relative mr-3">
+                        <img id="club-logo" src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+                        <button type="button" onclick="window.uploadLogo()"
+                            class="admin-image-controls absolute -bottom-2 -right-2 bg-white text-gray-800 rounded-full p-1 shadow-md hover:bg-gray-100 text-xs border border-gray-300"
+                            title="Change Logo">
+                            <i class="fa-solid fa-camera"></i>
+                        </button>
+                    </div>
+                    <span id="club-name" class="editable font-bold text-xl" data-section="general"
+                        data-key="clubName">New Pallavi Arts & Sports Boat Club</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="#about" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">About</a>
+                        <a href="#events" class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Events</a>
+                        <a href="#gallery"
+                            class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Gallery</a>
+                        <a href="#contact"
+                            class="hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                 </div>
             </div>
-            <div class="-mr-2 flex md:hidden">
-                <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
-                    <i class="fa-solid fa-bars"></i>
+        </div>
+
+        <div class="hidden md:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#about" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">About</a>
+                <a href="#events" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Events</a>
+                <a href="#gallery"
+                    class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Gallery</a>
+                <a href="#contact"
+                    class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header id="home" class="relative text-white transition-colors duration-300"
+        style="background-color: var(--secondary-hex);">
+        <div class="absolute inset-0 overflow-hidden">
+            <img id="hero-bg-img" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920"
+                alt="Boat Race Background" class="w-full h-full object-cover opacity-30">
+        </div>
+        <!-- Hero image edit button -->
+        <div class="admin-image-controls absolute top-4 right-4 z-10">
+            <button type="button" onclick="window.uploadHeroImage()"
+                class="px-3 py-2 rounded bg-black/60 text-white hover:bg-black/80 text-sm">
+                <i class="fa-solid fa-camera mr-1"></i>Change Hero Image
+            </button>
+        </div>
+        <div
+            class="relative max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center h-[60vh] justify-center">
+            <h1 class="editable text-4xl sm:text-6xl font-extrabold tracking-tight" data-section="general"
+                data-key="heroTitle">New Pallavi Arts & Sports Boat Club</h1>
+            <p class="editable mt-4 text-xl sm:text-2xl text-gray-200" data-section="general" data-key="heroSubtitle">
+                Since 1983</p>
+            <a href="#events"
+                class="mt-8 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:opacity-90 transition-all transform hover:scale-105"
+                style="background-color: var(--primary-hex);">
+                View Events
+            </a>
+        </div>
+    </header>
+
+    <!-- ABOUT -->
+    <section id="about" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                    About Us
+                </h2>
+                <p class="editable mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl"
+                    data-section="about" data-key="aboutTitle">A Legacy of Excellence</p>
+                <p class="editable mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto" data-section="about"
+                    data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing
+                    premier boat races and cultural events. Our mission is to preserve tradition while fostering
+                    athletic talent in our community.</p>
+            </div>
+
+            <div class="mt-10">
+                <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                    <div class="relative">
+                        <dt>
+                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
+                                style="background-color: var(--primary-hex);">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                                Championships
+                            </p>
+                        </dt>
+                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat1">
+                            Winners of multiple regional boat racing regattas.</dd>
+                    </div>
+
+                    <div class="relative">
+                        <dt>
+                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
+                                style="background-color: var(--primary-hex);">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                                Community
+                            </p>
+                        </dt>
+                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat2">
+                            Over 500 active members dedicated to arts and sports.</dd>
+                    </div>
+
+                    <div class="relative">
+                        <dt>
+                            <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white"
+                                style="background-color: var(--primary-hex);">
+                                <i class="fa-solid fa-palette"></i>
+                            </div>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
+                                Arts & Culture
+                            </p>
+                        </dt>
+                        <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat3">
+                            Promoting local art forms through annual exhibitions.</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section id="events" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-extrabold text-gray-900">
+                    Upcoming Events
+                </h2>
+                <button type="button" onclick="window.addEvent()"
+                    class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100"
+                    title="Add new event">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Event
                 </button>
             </div>
+            <div id="events-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
         </div>
-    </div>
+    </section>
 
-    <div class="hidden md:hidden" id="mobile-menu">
-        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a href="#home" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Home</a>
-            <a href="#about" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">About</a>
-            <a href="#events" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Events</a>
-            <a href="#gallery" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Gallery</a>
-            <a href="#contact" class="block hover:bg-gray-700 px-3 py-2 rounded-md text-base font-medium">Contact</a>
+    <!-- GALLERY -->
+    <section id="gallery" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-3xl font-extrabold text-gray-900">Gallery</h2>
+                <button type="button" onclick="window.addGalleryImage()"
+                    class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100"
+                    title="Add new gallery image">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Image
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-6">
+                Click any image to view it larger.
+            </p>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
         </div>
-    </div>
-</nav>
+    </section>
 
-<!-- HERO -->
-<header id="home" class="relative text-white transition-colors duration-300" style="background-color: var(--secondary-hex);">
-    <div class="absolute inset-0 overflow-hidden">
-        <img id="hero-bg-img" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920" alt="Boat Race Background" class="w-full h-full object-cover opacity-30">
-    </div>
-    <!-- Hero image edit button -->
-    <div class="admin-image-controls absolute top-4 right-4 z-10">
-        <button type="button" onclick="window.uploadHeroImage()" class="px-3 py-2 rounded bg-black/60 text-white hover:bg-black/80 text-sm">
-            <i class="fa-solid fa-camera mr-1"></i>Change Hero Image
-        </button>
-    </div>
-    <div class="relative max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center h-[60vh] justify-center">
-        <h1 class="editable text-4xl sm:text-6xl font-extrabold tracking-tight" data-section="general" data-key="heroTitle">New Pallavi Arts & Sports Boat Club</h1>
-        <p class="editable mt-4 text-xl sm:text-2xl text-gray-200" data-section="general" data-key="heroSubtitle">Since 1983</p>
-        <a href="#events" class="mt-8 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:opacity-90 transition-all transform hover:scale-105" style="background-color: var(--primary-hex);">
-            View Events
-        </a>
-    </div>
-</header>
-
-<!-- ABOUT -->
-<section id="about" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                About Us
-            </h2>
-            <p class="editable mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl" data-section="about" data-key="aboutTitle">A Legacy of Excellence</p>
-            <p class="editable mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto" data-section="about" data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing premier boat races and cultural events. Our mission is to preserve tradition while fostering athletic talent in our community.</p>
-        </div>
-
-        <div class="mt-10">
-            <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-                <div class="relative">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white" style="background-color: var(--primary-hex);">
-                            <i class="fa-solid fa-trophy"></i>
+    <!-- CONTACT -->
+    <section id="contact" class="py-16 text-white transition-colors duration-300"
+        style="background-color: var(--secondary-hex)">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-3xl font-extrabold mb-6">Get In Touch</h2>
+                    <p class="mb-4 text-gray-300">
+                        Interested in joining or sponsoring an event? Contact us using the details below.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i class="fa-solid fa-location-dot mt-1 mr-3" style="color: var(--primary-hex);"></i>
+                            <p class="editable" data-section="general" data-key="address">New Pallavi Nagar,
+                                Palazhi, Kerala, India</p>
                         </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
-                            Championships
-                        </p>
-                    </dt>
-                    <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat1">Winners of multiple regional boat racing regattas.</dd>
-                </div>
-
-                <div class="relative">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white" style="background-color: var(--primary-hex);">
-                            <i class="fa-solid fa-users"></i>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-phone mr-3" style="color: var(--primary-hex);"></i>
+                            <p class="editable" data-section="general" data-key="phone">+91 9048079748</p>
                         </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
-                            Community
-                        </p>
-                    </dt>
-                    <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat2">Over 500 active members dedicated to arts and sports.</dd>
-                </div>
-
-                <div class="relative">
-                    <dt>
-                        <div class="absolute flex items-center justify-center h-12 w-12 rounded-md text-white" style="background-color: var(--primary-hex);">
-                            <i class="fa-solid fa-palette"></i>
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-envelope mr-3" style="color: var(--primary-hex);"></i>
+                            <p class="editable" data-section="general" data-key="email">
+                                contact@newpallaviboatclub.com</p>
                         </div>
-                        <p class="ml-16 text-lg leading-6 font-medium text-gray-900">
-                            Arts & Culture
-                        </p>
-                    </dt>
-                    <dd class="editable ml-16 mt-2 text-base text-gray-500" data-section="about" data-key="feat3">Promoting local art forms through annual exhibitions.</dd>
-                </div>
-            </dl>
-        </div>
-    </div>
-</section>
-
-<!-- EVENTS -->
-<section id="events" class="py-16 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-3xl font-extrabold text-gray-900">
-                Upcoming Events
-            </h2>
-            <button type="button" onclick="window.addEvent()" class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100" title="Add new event">
-                <i class="fa-solid fa-plus mr-2"></i> Add Event
-            </button>
-        </div>
-        <div id="events-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-    </div>
-</section>
-
-<!-- GALLERY -->
-<section id="gallery" class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-3xl font-extrabold text-gray-900">Gallery</h2>
-            <button type="button" onclick="window.addGalleryImage()" class="admin-image-controls px-3 py-2 text-sm font-semibold rounded-md border border-dashed border-gray-400 text-gray-700 hover:bg-gray-100" title="Add new gallery image">
-                <i class="fa-solid fa-plus mr-2"></i> Add Image
-            </button>
-        </div>
-        <p class="text-sm text-gray-500 mb-6">
-            Click any image to view it larger.
-        </p>
-        <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
-    </div>
-</section>
-
-<!-- CONTACT -->
-<section id="contact" class="py-16 text-white transition-colors duration-300" style="background-color: var(--secondary-hex)">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-2 gap-8">
-            <div>
-                <h2 class="text-3xl font-extrabold mb-6">Get In Touch</h2>
-                <p class="mb-4 text-gray-300">
-                    Interested in joining or sponsoring an event? Contact us using the details below.
-                </p>
-                <div class="space-y-4">
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-location-dot mt-1 mr-3" style="color: var(--primary-hex);"></i>
-                        <p class="editable" data-section="general" data-key="address">New Pallavi Nagar, Palazhi, Kerala, India</p>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-phone mr-3" style="color: var(--primary-hex);"></i>
-                        <p class="editable" data-section="general" data-key="phone">+91 9048079748</p>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fa-solid fa-envelope mr-3" style="color: var(--primary-hex);"></i>
-                        <p class="editable" data-section="general" data-key="email">contact@newpallaviboatclub.com</p>
                     </div>
                 </div>
-            </div>
-            <div class="bg-white text-gray-800 rounded-lg p-6 shadow-xl">
-                <form onsubmit="handleContactSubmit(event)">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Name</label>
-                        <input type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400" required placeholder="Your Name">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400" required placeholder="you@example.com">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Message</label>
-                        <textarea class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400" rows="3" required placeholder="How can we help?"></textarea>
-                    </div>
-                    <button type="submit" class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md" style="background-color: var(--primary-hex);">
-                        Send Message
-                    </button>
-                </form>
+                <div class="bg-white text-gray-800 rounded-lg p-6 shadow-xl">
+                    <form onsubmit="handleContactSubmit(event)">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
+                                required placeholder="Your Name">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
+                                required placeholder="you@example.com">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Message</label>
+                            <textarea
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:ring-blue-400"
+                                rows="3" required placeholder="How can we help?"></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md"
+                            style="background-color: var(--primary-hex);">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                © <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fa-brands fa-facebook fa-lg"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fa-brands fa-instagram fa-lg"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fa-brands fa-twitter fa-lg"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notification-container" class="fixed bottom-24 right-6 z-50 flex flex-col items-end pointer-events-none">
     </div>
-</section>
 
-<!-- FOOTER -->
-<footer class="bg-gray-900 text-white py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center">
-        <div class="mb-4 md:mb-0">
-            © <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.
-        </div>
-        <div class="flex space-x-6">
-            <a href="#" class="text-gray-400 hover:text-white">
-                <i class="fa-brands fa-facebook fa-lg"></i>
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white">
-                <i class="fa-brands fa-instagram fa-lg"></i>
-            </a>
-            <a href="#" class="text-gray-400 hover:text-white">
-                <i class="fa-brands fa-twitter fa-lg"></i>
-            </a>
-        </div>
-    </div>
-</footer>
+    <!-- FLOATING ADMIN CONTROLS -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-2">
+        <i id="admin-status-icon" title="Not Logged In"
+            class="fa-solid fa-user-lock text-xl p-3 bg-white rounded-full shadow-lg text-red-500 border border-gray-200 cursor-pointer"
+            onclick="toggleSettings()"></i>
 
-<!-- NOTIFICATIONS -->
-<div id="notification-container" class="fixed bottom-24 right-6 z-50 flex flex-col items-end pointer-events-none">
-</div>
+        <div id="settings-panel" class="hidden bg-white p-4 rounded-lg shadow-xl mb-2 w-64 border border-gray-200">
+            <h3 class="font-bold text-gray-900 mb-3">Theme Settings</h3>
 
-<!-- FLOATING ADMIN CONTROLS -->
-<div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-2">
-    <i id="admin-status-icon" title="Not Logged In" class="fa-solid fa-user-lock text-xl p-3 bg-white rounded-full shadow-lg text-red-500 border border-gray-200 cursor-pointer" onclick="toggleSettings()"></i>
-
-    <div id="settings-panel" class="hidden bg-white p-4 rounded-lg shadow-xl mb-2 w-64 border border-gray-200">
-        <h3 class="font-bold text-gray-900 mb-3">Theme Settings</h3>
-
-        <div class="mb-3">
-            <label class="block text-sm text-gray-700 mb-1">Primary Color</label>
-            <div class="flex space-x-2 mb-1">
-                <button class="w-6 h-6 rounded-full bg-blue-500 ring-offset-1 hover:ring-2" onclick="setPrimaryColor('#3b82f6')"></button>
-                <button class="w-6 h-6 rounded-full bg-red-500 ring-offset-1 hover:ring-2" onclick="setPrimaryColor('#ef4444')"></button>
-                <button class="w-6 h-6 rounded-full bg-green-500 ring-offset-1 hover:ring-2" onclick="setPrimaryColor('#22c55e')"></button>
-                <button class="w-6 h-6 rounded-full bg-purple-500 ring-offset-1 hover:ring-2" onclick="setPrimaryColor('#a855f7')"></button>
-                <button class="w-6 h-6 rounded-full bg-orange-500 ring-offset-1 hover:ring-2" onclick="setPrimaryColor('#f97316')"></button>
+            <div class="mb-3">
+                <label class="block text-sm text-gray-700 mb-1">Primary Color</label>
+                <div class="flex space-x-2 mb-1">
+                    <button class="w-6 h-6 rounded-full bg-blue-500 ring-offset-1 hover:ring-2"
+                        onclick="setPrimaryColor('#3b82f6')"></button>
+                    <button class="w-6 h-6 rounded-full bg-red-500 ring-offset-1 hover:ring-2"
+                        onclick="setPrimaryColor('#ef4444')"></button>
+                    <button class="w-6 h-6 rounded-full bg-green-500 ring-offset-1 hover:ring-2"
+                        onclick="setPrimaryColor('#22c55e')"></button>
+                    <button class="w-6 h-6 rounded-full bg-purple-500 ring-offset-1 hover:ring-2"
+                        onclick="setPrimaryColor('#a855f7')"></button>
+                    <button class="w-6 h-6 rounded-full bg-orange-500 ring-offset-1 hover:ring-2"
+                        onclick="setPrimaryColor('#f97316')"></button>
+                </div>
+                <input type="color" id="custom-primary" class="mt-1 w-full h-8 cursor-pointer"
+                    onchange="setPrimaryColor(this.value)" value="#ef4444">
             </div>
-            <input type="color" id="custom-primary" class="mt-1 w-full h-8 cursor-pointer" onchange="setPrimaryColor(this.value)" value="#ef4444">
-        </div>
 
-        <div class="mb-3">
-            <label class="block text-sm text-gray-700 mb-1">Secondary Color (Dark)</label>
-            <input type="color" id="custom-secondary" class="w-full h-8 cursor-pointer" value="#0f172a" onchange="setSecondaryColor(this.value)">
-        </div>
+            <div class="mb-3">
+                <label class="block text-sm text-gray-700 mb-1">Secondary Color (Dark)</label>
+                <input type="color" id="custom-secondary" class="w-full h-8 cursor-pointer" value="#0f172a"
+                    onchange="setSecondaryColor(this.value)">
+            </div>
 
-        <div class="mb-3">
-            <label class="block text-sm text-gray-700 mb-1">Hero Image</label>
-            <button onclick="uploadHeroImage()" class="w-full text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded mb-2">
-                <i class="fa-solid fa-upload mr-1"></i> Upload Image
+            <div class="mb-3">
+                <label class="block text-sm text-gray-700 mb-1">Hero Image</label>
+                <button onclick="uploadHeroImage()"
+                    class="w-full text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-3 rounded mb-2">
+                    <i class="fa-solid fa-upload mr-1"></i> Upload Image
+                </button>
+                <input type="text" id="hero-bg-input"
+                    class="w-full border border-gray-300 rounded p-1 text-xs text-gray-800"
+                    placeholder="Or paste URL..." onchange="setHeroImage(this.value)">
+            </div>
+
+            <button onclick="resetDefaults()" class="text-xs text-red-600 hover:underline mt-2">
+                Reset to Defaults
             </button>
-            <input type="text" id="hero-bg-input" class="w-full border border-gray-300 rounded p-1 text-xs text-gray-800" placeholder="Or paste URL..." onchange="setHeroImage(this.value)">
         </div>
 
-        <button onclick="resetDefaults()" class="text-xs text-red-600 hover:underline mt-2">
-            Reset to Defaults
-        </button>
-    </div>
-
-    <div class="flex space-x-2">
-        <button id="settings-btn" onclick="toggleSettings()" title="Theme Settings (Admin Only)" class="bg-white text-gray-800 p-4 rounded-full shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105 border border-gray-200">
-            <i class="fa-solid fa-palette text-xl"></i>
-        </button>
-        <button id="edit-btn" onclick="toggleEditMode()" title="Enable Editing (Admin Login Required)" class="p-4 rounded-full shadow-lg hover:opacity-90 transition-transform transform hover:scale-105 bg-red-500 text-white">
-            <i class="fa-solid fa-pen text-xl"></i>
-        </button>
-    </div>
-</div>
-
-<!-- ADMIN LOGIN MODAL -->
-<div id="login-modal" class="modal-backdrop">
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm transform transition-all duration-300">
-        <h3 class="text-2xl font-bold mb-6 text-gray-900 text-center">Admin Login</h3>
-        <form onsubmit="event.preventDefault(); handleAdminLogin()">
-            <div class="mb-4">
-                <label for="admin-username" class="block text-sm font-medium text-gray-700">
-                    Username
-                </label>
-                <input type="text" id="admin-username" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none" required autocomplete="username">
-            </div>
-            <div class="mb-6">
-                <label for="admin-password" class="block text-sm font-medium text-gray-700">
-                    Password
-                </label>
-                <input type="password" id="admin-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none" required autocomplete="current-password">
-            </div>
-            <p id="login-error" class="text-red-500 text-sm mb-4"></p>
-            <button type="submit" class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md" style="background-color: var(--primary-hex);">
-                Log In
+        <div class="flex space-x-2">
+            <button id="settings-btn" onclick="toggleSettings()" title="Theme Settings (Admin Only)"
+                class="bg-white text-gray-800 p-4 rounded-full shadow-lg hover:bg-gray-100 transition-transform transform hover:scale-105 border border-gray-200">
+                <i class="fa-solid fa-palette text-xl"></i>
             </button>
-            <button type="button" onclick="closeLoginModal()" class="w-full mt-3 bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
-                Cancel
+            <button id="edit-btn" onclick="toggleEditMode()" title="Enable Editing (Admin Login Required)"
+                class="p-4 rounded-full shadow-lg hover:opacity-90 transition-transform transform hover:scale-105 bg-red-500 text-white">
+                <i class="fa-solid fa-pen text-xl"></i>
             </button>
-        </form>
+        </div>
     </div>
-</div>
 
-<!-- IMAGE POPUP -->
-<div id="image-popup" class="fixed inset-0 bg-black/90 z-[9999] cursor-pointer">
-    <button id="popup-close-btn" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10" onclick="closeImagePopup()">
-        <i class="fa-solid fa-times"></i>
-    </button>
-    <div class="w-full h-full flex items-center justify-center p-4">
-        <img id="popup-img" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl" alt="Gallery Image">
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="login-modal" class="modal-backdrop">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm transform transition-all duration-300">
+            <h3 class="text-2xl font-bold mb-6 text-gray-900 text-center">Admin Login</h3>
+            <form onsubmit="event.preventDefault(); handleAdminLogin()">
+                <div class="mb-4">
+                    <label for="admin-username" class="block text-sm font-medium text-gray-700">
+                        Username
+                    </label>
+                    <input type="text" id="admin-username"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none"
+                        required autocomplete="username">
+                </div>
+                <div class="mb-6">
+                    <label for="admin-password" class="block text-sm font-medium text-gray-700">
+                        Password
+                    </label>
+                    <input type="password" id="admin-password"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2 focus:border-blue-400 focus:outline-none"
+                        required autocomplete="current-password">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm mb-4"></p>
+                <button type="submit"
+                    class="w-full text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-colors shadow-md"
+                    style="background-color: var(--primary-hex);">
+                    Log In
+                </button>
+                <button type="button" onclick="closeLoginModal()"
+                    class="w-full mt-3 bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    Cancel
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Hidden file inputs for uploads -->
-<input type="file" id="gallery-file-input" accept="image/*" class="hidden">
-<input type="file" id="hero-file-input" accept="image/*" class="hidden">
+    <!-- IMAGE POPUP -->
+    <div id="image-popup" class="fixed inset-0 bg-black/90 z-[9999] cursor-pointer">
+        <button id="popup-close-btn" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10"
+            onclick="closeImagePopup()">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <div class="w-full h-full flex items-center justify-center p-4">
+            <img id="popup-img" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                alt="Gallery Image">
+        </div>
+    </div>
+
+    <!-- Hidden file inputs for uploads -->
+    <input type="file" id="gallery-file-input" accept="image/*" class="hidden">
+    <input type="file" id="hero-file-input" accept="image/*" class="hidden">
+    <input type="file" id="logo-file-input" accept="image/*" class="hidden">
 
 </body>
+
 </html>
