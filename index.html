@@ -886,6 +886,8 @@
             if (!dashboard) return;
             dashboard.classList.add("show");
             updateDashboardStats();
+            // Render any local backups present
+            try { renderLocalBackups(); } catch (e) { console.warn('renderLocalBackups error', e); }
         };
 
         window.closeAdminDashboard = () => {
@@ -907,6 +909,111 @@
             document.getElementById("stat-events").textContent = stats.totalEvents;
             document.getElementById("stat-gallery").textContent = stats.totalGalleryImages;
             document.getElementById("stat-social").textContent = stats.socialFeedsEnabled;
+        };
+
+        // ==== LOCAL BACKUP MANAGEMENT ====
+        const listLocalBackups = () => {
+            const backups = [];
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('np_backup_')) {
+                        const section = key.replace('np_backup_', '');
+                        backups.push({ section, key });
+                    }
+                }
+            } catch (e) {
+                console.warn('localStorage not available', e);
+            }
+            return backups;
+        };
+
+        const renderLocalBackups = () => {
+            const container = document.getElementById('local-backups-list');
+            if (!container) return;
+            const backups = listLocalBackups();
+            if (!backups.length) {
+                container.innerHTML = '<p class="text-sm text-gray-600">No local backups found.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            backups.forEach((b) => {
+                const li = document.createElement('div');
+                li.className = 'flex items-center justify-between p-3 border rounded mb-2';
+                li.innerHTML = `
+                    <div>
+                        <div class="font-semibold">${b.section}</div>
+                        <div class="text-xs text-gray-500">Backup present in browser localStorage</div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-1 text-sm bg-green-600 text-white rounded" onclick="pushLocalBackup('${b.section}')">Push</button>
+                        <button class="px-3 py-1 text-sm bg-yellow-500 text-white rounded" onclick="downloadLocalBackup('${b.section}')">View</button>
+                        <button class="px-3 py-1 text-sm bg-red-600 text-white rounded" onclick="clearLocalBackup('${b.section}')">Clear</button>
+                    </div>
+                `;
+                container.appendChild(li);
+            });
+        };
+
+        window.pushLocalBackup = async (section) => {
+            try {
+                const raw = localStorage.getItem(`np_backup_${section}`);
+                if (!raw) {
+                    showNotification('No local backup found for ' + section, 'info');
+                    renderLocalBackups();
+                    return;
+                }
+                const data = JSON.parse(raw);
+                // Merge into state and save
+                state[section] = { ...state[section], ...data };
+                await saveSectionToKV(section);
+                showNotification(`Pushed local backup for ${section}`, 'success');
+                renderLocalBackups();
+                updateDashboardStats();
+                renderAll();
+            } catch (e) {
+                console.error('Failed to push local backup for', section, e);
+                showNotification('Failed to push backup. Check console.', 'error');
+            }
+        };
+
+        window.clearLocalBackup = (section) => {
+            try {
+                localStorage.removeItem(`np_backup_${section}`);
+                showNotification(`Cleared local backup for ${section}`, 'success');
+            } catch (e) {
+                console.warn('Failed to clear local backup for', section, e);
+                showNotification('Failed to clear backup. Check console.', 'error');
+            }
+            renderLocalBackups();
+        };
+
+        window.clearAllLocalBackups = () => {
+            try {
+                const backups = listLocalBackups();
+                backups.forEach(b => localStorage.removeItem(b.key));
+                showNotification('Cleared all local backups', 'success');
+            } catch (e) {
+                console.warn('Failed to clear all backups', e);
+                showNotification('Failed to clear backups. Check console.', 'error');
+            }
+            renderLocalBackups();
+        };
+
+        window.downloadLocalBackup = (section) => {
+            try {
+                const raw = localStorage.getItem(`np_backup_${section}`);
+                if (!raw) {
+                    showNotification('No local backup to view.', 'info');
+                    return;
+                }
+                const win = window.open('', '_blank');
+                win.document.write('<pre>' + JSON.stringify(JSON.parse(raw), null, 2) + '</pre>');
+            } catch (e) {
+                console.warn('Failed to open backup', e);
+                showNotification('Failed to open backup. Check console.', 'error');
+            }
         };
 
         // ==== SOCIAL MEDIA FUNCTIONS ====
@@ -2655,6 +2762,22 @@
                         <i class="fa-solid fa-lightbulb mr-2 text-yellow-500"></i>
                         <strong>Tip:</strong> Click the edit button (pencil icon) in the bottom right to enter edit mode. You can then click any text on the website to edit it directly.
                     </p>
+                </div>
+                
+                <!-- Local Backups Management -->
+                <div class="mt-8 p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">Local Backups</h3>
+                        <div class="flex items-center gap-2">
+                            <button onclick="(async ()=>{ const backups = listLocalBackups(); for(const b of backups){ await pushLocalBackup(b.section); } renderLocalBackups(); })()"
+                                class="px-3 py-2 bg-green-600 text-white rounded text-sm">Push All</button>
+                            <button onclick="clearAllLocalBackups()" class="px-3 py-2 bg-red-600 text-white rounded text-sm">Clear All</button>
+                        </div>
+                    </div>
+                    <div id="local-backups-list" class="min-h-[80px]">
+                        <p class="text-sm text-gray-600">Checking for local backups...</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Backups are automatically created in your browser if saving to the server fails. Use the controls to push or remove them.</p>
                 </div>
             </div>
         </div>
