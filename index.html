@@ -1077,7 +1077,10 @@
                 state.about = withDefaults(defaultAbout, data.about);
                 state.events = withDefaults(defaultEvents, data.events);
                 state.gallery = withDefaults(defaultGallery, data.gallery);
-                state.team = withDefaults(defaultTeam, data.team || {});
+                // Normalize team payload: older data may store team as an array
+                let teamData = data.team;
+                if (Array.isArray(teamData)) teamData = { team: teamData };
+                state.team = withDefaults(defaultTeam, teamData || {});
 
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
