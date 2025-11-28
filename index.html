@@ -445,6 +445,7 @@
         };
 
         const defaultTeam = {
+            title: "Meet Our Leadership",
             team: [
                 {
                     name: "Rajesh Kumar",
@@ -981,6 +982,8 @@
             if (!container) return;
 
             const data = state.team || defaultTeam;
+            const teamTitleEl = document.querySelector('[data-section="team"][data-key="title"]');
+            if (teamTitleEl) teamTitleEl.textContent = data.title || "Meet Our Leadership";
             const team = Array.isArray(data.team) ? data.team : [];
 
             container.innerHTML = "";
@@ -2015,9 +2018,10 @@
                     <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
                         <i class="fa-solid fa-users-line mr-2"></i>Our Team
                     </h2>
-                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                        Meet Our Leadership
-                    </p>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title editable"
+                        data-section="team" data-key="title">
+                            Meet Our Leadership
+                        </p>
                     <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
                 </div>
                 <button type="button" onclick="window.addTeamMember()"
