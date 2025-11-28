@@ -78,19 +78,18 @@ async function handleUpload(request, env) {
         const extension = file.name.split('.').pop();
         const filename = `${timestamp}-${randomId}.${extension}`;
 
-        // Upload to R2 with cache-control so a CDN can cache the object
+        // Upload to R2
         const arrayBuffer = await file.arrayBuffer();
         await env.IMAGES_BUCKET.put(filename, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
-                cacheControl: 'public, max-age=31536000, immutable'
             }
         });
 
-        // Construct public URL. Prefer an environment-configured public base (e.g. a CDN or custom domain)
-        // Set R2_PUBLIC_URL in your worker environment to something like: https://cdn.example.com
-        const publicBase = env.R2_PUBLIC_URL || 'https://pub-YOUR-R2-BUCKET-ID.r2.dev';
-        const publicUrl = `${publicBase.replace(/\/$/, '')}/${filename}`;
+        // Construct public URL
+        // Note: You'll need to set up a custom domain for your R2 bucket
+        // or use the default R2.dev domain
+        const publicUrl = `https://pub-YOUR-R2-BUCKET-ID.r2.dev/${filename}`;
 
         console.log(`Successfully uploaded: ${filename}`);
 
