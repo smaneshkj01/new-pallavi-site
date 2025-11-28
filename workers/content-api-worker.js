@@ -29,7 +29,16 @@ export default {
     try {
       // GET /content - Retrieve all content
       if (url.pathname === '/content' && request.method === 'GET') {
-        return await handleGetContent(env);
+          // Allow short CDN caching for content GETs; adjust as needed.
+          const res = await handleGetContent(env);
+          // If handleGetContent returned a Response, clone and add cache headers
+          if (res instanceof Response) {
+            const headers = new Headers(res.headers);
+            // short TTL for client, longer for CDNs
+            headers.set('Cache-Control', 'public, max-age=60, s-maxage=300');
+            return new Response(res.body, { status: res.status, headers });
+          }
+          return res;
       }
 
       // POST /content/update - Update specific section

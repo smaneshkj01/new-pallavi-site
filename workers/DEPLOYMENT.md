@@ -210,6 +210,24 @@ When `ADMIN_TOKEN` is set the worker will reject POST `/content/update` requests
 
 On the front-end you can provide the token via a short-lived client input (the project includes a settings panel token input which stores the token in `sessionStorage` for the session). For production, prefer server-side flows that avoid shipping the token to browsers.
 
+## Speed & CDN notes (serve images fast)
+
+To serve uploaded images quickly from R2 and a CDN, follow these recommendations:
+
+- Use a CDN or custom domain in front of the R2 bucket (Fastly, Cloudflare CDN, AWS CloudFront, etc). Configure the CDN to cache static assets aggressively.
+- Set the worker environment variable `R2_PUBLIC_URL` to the public base URL the CDN exposes (for example `https://cdn.example.com`). The R2 uploader worker will return URLs using that base.
+- When uploading images, the R2 worker sets `Cache-Control: public, max-age=31536000, immutable` so CDNs and browsers can cache long-lived assets.
+- Optionally, use an image resizing/optimization layer (Cloudflare Image Resizing, Fastly Image Optimizer, or an image CDN) to serve WebP/AVIF and scaled sizes. If you expose an image CDN domain as `R2_PUBLIC_URL`, configure the CDN to pull from R2 as the origin.
+
+Quick steps to enable a CDN with R2:
+
+1. Create a CDN distribution (Fastly/Cloudflare/CloudFront) and point the origin to your R2 bucket's public domain or to a Worker that proxies R2.
+2. Configure the CDN to cache based on URL and honor origin Cache-Control headers.
+3. Set `R2_PUBLIC_URL` in the uploader worker to your CDN domain and deploy.
+4. Use the uploader UI in the site to upload images — the returned URL will be the CDN URL and will be cached at the CDN edge.
+
+For Cloudflare specifically, consider Cloudflare Images or a Worker that resizes images on-the-fly and sets optimal caching headers.
+
 ## Support
 
 If you encounter any issues:
