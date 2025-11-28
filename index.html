@@ -1709,7 +1709,15 @@
             panel.classList.toggle("hidden");
         };
 
-        window.handleAdminLogin = () => {
+        window.sha256hex = async (str) => {
+            const enc = new TextEncoder();
+            const data = enc.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        };
+
+        window.handleAdminLogin = async () => {
             const usernameInput = document.getElementById("admin-username");
             const passwordInput = document.getElementById("admin-password");
             const loginModal = document.getElementById("login-modal");
@@ -1719,31 +1727,81 @@
             const username = usernameInput ? usernameInput.value : "";
             const password = passwordInput ? passwordInput.value : "";
 
-            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                adminLoggedIn = true;
-                if (loginModal) loginModal.style.display = "none";
+            // If server-side credentials are configured, prefer that (not implemented here)
+            if (ADMIN_USERNAME && ADMIN_PASSWORD) {
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    adminLoggedIn = true;
+                    if (loginModal) loginModal.style.display = "none";
 
-                const statusIcon = document.getElementById("admin-status-icon");
-                if (statusIcon) {
-                    statusIcon.classList.remove("text-red-500");
-                    statusIcon.classList.add("text-green-500");
-                    statusIcon.setAttribute("title", "Admin Logged In");
+                    const statusIcon = document.getElementById("admin-status-icon");
+                    if (statusIcon) {
+                        statusIcon.classList.remove("text-red-500");
+                        statusIcon.classList.add("text-green-500");
+                        statusIcon.setAttribute("title", "Admin Logged In");
+                    }
+                    showNotification("Admin login successful!", "success");
+                    if (usernameInput) usernameInput.value = "";
+                    if (passwordInput) passwordInput.value = "";
+                    if (loginError) loginError.classList.add("hidden");
+                    window.toggleEditMode();
+                    return;
                 }
-                showNotification("Admin login successful!", "success");
-
-                // Clear form
-                if (usernameInput) usernameInput.value = "";
-                if (passwordInput) passwordInput.value = "";
-                if (loginError) loginError.classList.add("hidden");
-
-                window.toggleEditMode();
-            } else {
-                if (loginError) {
-                    loginError.classList.remove("hidden");
-                    errorText.textContent = "Invalid username or password.";
-                }
-                showNotification("Login failed.", "error");
             }
+
+            // Fallback: check for a locally stored admin password hash
+            try {
+                const storedHash = localStorage.getItem('np_admin_pw_hash');
+                const enteredHash = await window.sha256hex(password || '');
+
+                if (storedHash) {
+                    if (enteredHash === storedHash) {
+                        adminLoggedIn = true;
+                        if (loginModal) loginModal.style.display = "none";
+                        const statusIcon = document.getElementById("admin-status-icon");
+                        if (statusIcon) {
+                            statusIcon.classList.remove("text-red-500");
+                            statusIcon.classList.add("text-green-500");
+                            statusIcon.setAttribute("title", "Admin Logged In");
+                        }
+                        showNotification("Admin login successful (local).", "success");
+                        if (usernameInput) usernameInput.value = "";
+                        if (passwordInput) passwordInput.value = "";
+                        if (loginError) loginError.classList.add("hidden");
+                        window.toggleEditMode();
+                        return;
+                    }
+                } else {
+                    // No local admin password set — offer to create one
+                    const create = confirm(
+                        "No local admin password is set. Create one now from this login? (This stores a hashed password in your browser's localStorage and is only suitable for local testing.)"
+                    );
+                    if (create) {
+                        await localStorage.setItem('np_admin_pw_hash', enteredHash);
+                        adminLoggedIn = true;
+                        if (loginModal) loginModal.style.display = "none";
+                        const statusIcon = document.getElementById("admin-status-icon");
+                        if (statusIcon) {
+                            statusIcon.classList.remove("text-red-500");
+                            statusIcon.classList.add("text-green-500");
+                            statusIcon.setAttribute("title", "Admin Logged In");
+                        }
+                        showNotification("Local admin created and logged in.", "success");
+                        if (usernameInput) usernameInput.value = "";
+                        if (passwordInput) passwordInput.value = "";
+                        if (loginError) loginError.classList.add("hidden");
+                        window.toggleEditMode();
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error('Admin login error', e);
+            }
+
+            if (loginError) {
+                loginError.classList.remove("hidden");
+                errorText.textContent = "Invalid username or password.";
+            }
+            showNotification("Login failed.", "error");
         };
 
         window.toggleEditMode = async () => {
