@@ -370,6 +370,37 @@
             height: 100%;
             object-fit: cover;
         }
+
+        /* Accessibility & focus styles */
+        :focus {
+            outline: none;
+        }
+
+        :focus-visible {
+            outline: 3px solid rgba(59,130,246,0.9);
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+
+        .sr-only {
+            position: absolute !important;
+            height: 1px; width: 1px;
+            overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap; border: 0; padding: 0; margin: -1px;
+        }
+
+        .social-icon {
+            font-size: 18px;
+            width: 1em; height: 1em; display: inline-block; vertical-align: middle;
+        }
+
+        a, button {
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+        }
+
+        a:focus-visible, button:focus-visible {
+            box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+        }
     </style>
 </head>
 
@@ -1964,6 +1995,7 @@
         </div>
     </header>
 
+    <main>
     <!-- ABOUT -->
     <section id="about" class="py-20 bg-gradient-to-br from-white to-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2171,21 +2203,34 @@
                     <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
                     <div class="flex items-center gap-4" role="navigation" aria-label="Social links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
+                            <i class="fa-brands fa-facebook-f social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+                            <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-twitter" aria-hidden="true"></i>
+                            <i class="fa-brands fa-twitter social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on YouTube" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-youtube" aria-hidden="true"></i>
+                            <i class="fa-brands fa-youtube social-icon" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+        </main>
+
+        <!-- SITE FOOTER -->
+        <footer class="bg-gray-900 text-white py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+                <div class="text-sm text-gray-300">&copy; <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.</div>
+                <div class="mt-4 md:mt-0 flex items-center gap-3">
+                    <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-white/80 hover:text-white">
+                        <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
+                    </a>
+                    <a href="mailto:contact@newpallaviboatclub.com" aria-label="Email" class="text-white/80 hover:text-white">contact@newpallaviboatclub.com</a>
+                </div>
+            </div>
         </footer>
 
         <!-- NOTIFICATIONS -->
