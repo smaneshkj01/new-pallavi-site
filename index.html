@@ -371,18 +371,18 @@
         let galleryFileInputEl = null;
         let heroFileInputEl = null;
         let logoFileInputEl = null;
+        let teamFileInputEl = null;
         let pendingGalleryUploadAction = null;
         let pendingHeroUploadAction = null;
         let pendingLogoUploadAction = null;
+        let pendingTeamUploadAction = null;
 
         const state = {
             general: null,
             about: null,
             events: null,
             gallery: null,
-            team: null,
-            testimonials: null,
-            socialMedia: null,
+            team: null
         };
 
         // ==== DEFAULT CONTENT ====
@@ -444,21 +444,6 @@
             ]
         };
 
-        const defaultSocialMedia = {
-            instagram: {
-                enabled: false,
-                username: "new_pallavi_club",
-                displayCount: 6,
-                posts: []
-            },
-            facebook: {
-                enabled: false,
-                pageId: "new-pallavi-boat-club",
-                displayCount: 4,
-                posts: []
-            }
-        };
-
         const defaultTeam = {
             team: [
                 {
@@ -492,34 +477,8 @@
             ]
         };
 
-        const defaultTestimonials = {
-            testimonials: [
-                {
-                    text: "Being part of this club has transformed my life. The experience, the people, and the traditions are incredible. Highly recommended!",
-                    author: "Vikram Kumar",
-                    title: "Racing Champion",
-                    initials: "VK",
-                    borderColor: "#ef4444"
-                },
-                {
-                    text: "The cultural events here are world-class. I've learned so much about our heritage while making amazing friends.",
-                    author: "Sneha Ansari",
-                    title: "Performer & Artist",
-                    initials: "SA",
-                    borderColor: "#3b82f6"
-                },
-                {
-                    text: "A supportive community that values both tradition and progress. The management is excellent and always open to new ideas.",
-                    author: "Rohan Verma",
-                    title: "Member & Sports Coach",
-                    initials: "RV",
-                    borderColor: "#22c55e"
-                }
-            ]
-        };
-
         const allLoaded = () =>
-            state.general && state.about && state.events && state.gallery && state.team && state.testimonials && state.socialMedia;
+            state.general && state.about && state.events && state.gallery && state.team;
 
         // ==== UTILITIES ====
         const updateTailwindColors = (primary, secondary) => {
@@ -898,17 +857,16 @@
         const updateDashboardStats = () => {
             const stats = {
                 totalTeam: (state.team?.team?.length || 0),
-                totalTestimonials: (state.testimonials?.testimonials?.length || 0),
+                totalTestimonials: 0,
                 totalEvents: (state.events?.events?.length || 0),
                 totalGalleryImages: (state.gallery?.gallery?.length || 0),
-                socialFeedsEnabled: ((state.socialMedia?.instagram?.enabled ? 1 : 0) + (state.socialMedia?.facebook?.enabled ? 1 : 0))
+                socialFeedsEnabled: 0
             };
 
             document.getElementById("stat-team").textContent = stats.totalTeam;
-            document.getElementById("stat-testimonials").textContent = stats.totalTestimonials;
             document.getElementById("stat-events").textContent = stats.totalEvents;
             document.getElementById("stat-gallery").textContent = stats.totalGalleryImages;
-            document.getElementById("stat-social").textContent = stats.socialFeedsEnabled;
+            const socialEl = document.getElementById("stat-social"); if (socialEl) socialEl.textContent = stats.socialFeedsEnabled;
         };
 
         // ==== LOCAL BACKUP MANAGEMENT ====
@@ -1016,88 +974,7 @@
             }
         };
 
-        // ==== SOCIAL MEDIA FUNCTIONS ====
-        window.toggleSocialMedia = (platform) => {
-            if (!state.socialMedia) state.socialMedia = { ...defaultSocialMedia };
-            const config = state.socialMedia[platform];
-            if (config) {
-                config.enabled = !config.enabled;
-                saveSectionToKV("socialMedia");
-                renderSocialMedia();
-                showNotification(`${platform.charAt(0).toUpperCase() + platform.slice(1)} ${config.enabled ? 'enabled' : 'disabled'}`, 'success');
-            }
-        };
-
-        window.updateSocialConfig = (platform, field, value) => {
-            if (!state.socialMedia) state.socialMedia = { ...defaultSocialMedia };
-            if (state.socialMedia[platform]) {
-                state.socialMedia[platform][field] = value;
-                saveSectionToKV("socialMedia");
-                renderSocialMedia();
-            }
-        };
-
-        const renderSocialMedia = () => {
-            const instagramSection = document.getElementById("instagram-feed");
-            const facebookSection = document.getElementById("facebook-feed");
-
-            if (instagramSection && state.socialMedia?.instagram?.enabled) {
-                renderInstagramFeed(instagramSection);
-            }
-            if (facebookSection && state.socialMedia?.facebook?.enabled) {
-                renderFacebookFeed(facebookSection);
-            }
-        };
-
-        const renderInstagramFeed = (container) => {
-            const config = state.socialMedia.instagram;
-            container.innerHTML = `
-                <div class="social-feed-container">
-                    <div class="social-feed-card">
-                        <div class="social-feed-header">
-                            <i class="fa-brands fa-instagram text-2xl"></i>
-                            <div>
-                                <h4 class="font-bold">@${config.username || 'new_pallavi_club'}</h4>
-                                <p class="text-xs">Instagram Feed</p>
-                            </div>
-                        </div>
-                        <div class="social-feed-content">
-                            <p class="text-sm">Connect your Instagram to display posts. Add username in admin panel.</p>
-                            ${adminLoggedIn ? `
-                                <input type="text" id="instagram-username" class="w-full mt-3 p-2 border rounded text-gray-800" 
-                                    placeholder="Instagram username" value="${config.username || ''}"
-                                    onchange="updateSocialConfig('instagram', 'username', this.value)">
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        };
-
-        const renderFacebookFeed = (container) => {
-            const config = state.socialMedia.facebook;
-            container.innerHTML = `
-                <div class="social-feed-container">
-                    <div class="social-feed-card">
-                        <div class="social-feed-header">
-                            <i class="fa-brands fa-facebook text-2xl"></i>
-                            <div>
-                                <h4 class="font-bold">${config.pageId || 'new-pallavi-boat-club'}</h4>
-                                <p class="text-xs">Facebook Feed</p>
-                            </div>
-                        </div>
-                        <div class="social-feed-content">
-                            <p class="text-sm">Connect your Facebook page to display posts. Add page ID in admin panel.</p>
-                            ${adminLoggedIn ? `
-                                <input type="text" id="facebook-pageid" class="w-full mt-3 p-2 border rounded text-gray-800" 
-                                    placeholder="Facebook page ID" value="${config.pageId || ''}"
-                                    onchange="updateSocialConfig('facebook', 'pageId', this.value)">
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        };
+        // Social media features removed — deprecated per project request
 
         const renderTeam = () => {
             const container = document.getElementById("team-container");
@@ -1112,10 +989,14 @@
                 const card = document.createElement("div");
                 card.className = "card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
 
-                card.innerHTML = `
-                    <div class="h-48 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
+                const imageHtml = member.photo ?
+                    `<img id="team-photo-${index}" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
+                    `<div class="h-48 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
                         <i class="fa-solid fa-user-tie text-6xl text-white/30"></i>
-                    </div>
+                    </div>`;
+
+                card.innerHTML = `
+                    ${imageHtml}
                     <div class="p-6 text-center">
                         <h3 class="editable text-lg font-bold text-gray-900"
                             data-section="team"
@@ -1143,6 +1024,7 @@
                             ${member.bio || ""}
                         </p>
                         <div class="admin-image-controls mt-4 space-x-2 text-xs flex justify-center">
+                            ${isEditing ? `<button type="button" class="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors" onclick="window.uploadTeamPhoto(${index})"><i class="fa-solid fa-camera mr-1"></i>Upload Photo</button>` : ''}
                             <button type="button"
                                 class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
                                 onclick="window.removeTeamMember(${index})">
@@ -1156,82 +1038,7 @@
             });
         };
 
-        const renderTestimonials = () => {
-            const container = document.getElementById("testimonials-container");
-            if (!container) return;
-
-            const data = state.testimonials || defaultTestimonials;
-            const testimonials = Array.isArray(data.testimonials) ? data.testimonials : [];
-
-            container.innerHTML = "";
-
-            testimonials.forEach((testimonial, index) => {
-                const card = document.createElement("div");
-                card.className = "card-hover bg-gradient-to-br from-orange-50 to-red-50 p-8 rounded-xl shadow-lg hover:shadow-xl border-l-4 relative";
-                card.style.borderLeftColor = testimonial.borderColor;
-
-                card.innerHTML = `
-                    <div class="flex items-center mb-4">
-                        <div class="flex text-yellow-400">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                    </div>
-                    <p class="editable text-gray-700 mb-4 italic"
-                       data-section="testimonials"
-                       data-type="testimonial"
-                       data-index="${index}"
-                       data-field="text"
-                       ${isEditing ? 'contenteditable="true"' : ''}>
-                        "${testimonial.text || ""}"
-                    </p>
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style="background: linear-gradient(135deg, ${testimonial.borderColor}, rgba(239, 68, 68, 0.7));">
-                                <span class="editable"
-                                      data-section="testimonials"
-                                      data-type="testimonial"
-                                      data-index="${index}"
-                                      data-field="initials"
-                                      ${isEditing ? 'contenteditable="true"' : ''}>
-                                    ${testimonial.initials || ""}
-                                </span>
-                            </div>
-                            <div class="ml-4">
-                                <p class="editable font-bold text-gray-900"
-                                   data-section="testimonials"
-                                   data-type="testimonial"
-                                   data-index="${index}"
-                                   data-field="author"
-                                   ${isEditing ? 'contenteditable="true"' : ''}>
-                                    ${testimonial.author || ""}
-                                </p>
-                                <p class="editable text-sm text-gray-600"
-                                   data-section="testimonials"
-                                   data-type="testimonial"
-                                   data-index="${index}"
-                                   data-field="title"
-                                   ${isEditing ? 'contenteditable="true"' : ''}>
-                                    ${testimonial.title || ""}
-                                </p>
-                            </div>
-                        </div>
-                        <div class="admin-image-controls text-xs">
-                            <button type="button"
-                                class="px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-colors"
-                                onclick="window.removeTestimonial(${index})">
-                                <i class="fa-solid fa-trash mr-1"></i>Remove
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(card);
-            });
-        };
+        // Testimonials removed — feature deprecated per request
 
         const renderAll = () => {
             renderGeneral();
@@ -1239,8 +1046,6 @@
             renderEvents();
             renderGallery();
             renderTeam();
-            renderTestimonials();
-            renderGallery();
 
             const yearEl = document.getElementById("year");
             if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -1269,12 +1074,10 @@
                 state.events = withDefaults(defaultEvents, data.events);
                 state.gallery = withDefaults(defaultGallery, data.gallery);
                 state.team = withDefaults(defaultTeam, data.team);
-                state.testimonials = withDefaults(defaultTestimonials, data.testimonials);
-                state.socialMedia = withDefaults(defaultSocialMedia, data.socialMedia);
 
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
-                    ["general","about","events","gallery","team","testimonials","socialMedia"].forEach((sec) => {
+                    ["general","about","events","gallery","team"].forEach((sec) => {
                         const key = `np_backup_${sec}`;
                         const raw = localStorage.getItem(key);
                         if (raw) {
@@ -1299,8 +1102,6 @@
                 state.events = { ...defaultEvents };
                 state.gallery = { ...defaultGallery };
                 state.team = { ...defaultTeam };
-                state.testimonials = { ...defaultTestimonials };
-                state.socialMedia = { ...defaultSocialMedia };
                 renderAll();
             }
         }
@@ -1349,7 +1150,7 @@
 
                 if (!section || !state[section]) return;
                 // Skip array items here - they're handled below
-                if ((section === "events" || section === "team" || section === "testimonials") && type) return;
+                if ((section === "events" || section === "team") && type) return;
 
                 if (key) {
                     state[section][key] = el.textContent.trim();
@@ -1419,35 +1220,7 @@
             }
 
             // Testimonials array - only update if editable fields exist
-            const testimonialsNodes = document.querySelectorAll(
-                '[data-section="testimonials"][data-type="testimonial"]'
-            );
-            if (testimonialsNodes.length > 0) {
-                const testimonialsMap = {};
-                testimonialsNodes.forEach((el) => {
-                    const index = parseInt(el.getAttribute("data-index"), 10);
-                    const field = el.getAttribute("data-field");
-                    if (Number.isNaN(index) || !field) return;
-                    if (!testimonialsMap[index]) testimonialsMap[index] = {};
-                    testimonialsMap[index][field] = el.textContent.trim();
-                });
-
-                const currentTestimonials = (state.testimonials && state.testimonials.testimonials) || [];
-                const newTestimonialsArray = Object.keys(testimonialsMap)
-                    .map((k) => parseInt(k, 10))
-                    .sort((a, b) => a - b)
-                    .map((idx) => {
-                        const original = currentTestimonials[idx] || {};
-                        return {
-                            ...original,
-                            ...testimonialsMap[idx]
-                        };
-                    });
-
-                if (newTestimonialsArray.length > 0) {
-                    state.testimonials.testimonials = newTestimonialsArray;
-                }
-            }
+            // Testimonials removed — nothing to update from DOM
         };
 
         const saveAllSections = async () => {
@@ -1461,9 +1234,7 @@
                 saveSectionToKV("about"),
                 saveSectionToKV("events"),
                 saveSectionToKV("gallery"),
-                saveSectionToKV("team"),
-                saveSectionToKV("testimonials"),
-                saveSectionToKV("socialMedia")
+                saveSectionToKV("team")
             ]);
             showNotification("✓ All content saved successfully!", "success");
         };
@@ -1557,6 +1328,35 @@
                 }
             };
             logoFileInputEl.click();
+        };
+
+        window.uploadTeamPhoto = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to upload team photos.", "info");
+                return;
+            }
+
+            if (!teamFileInputEl) {
+                showNotification("File input not ready.", "error");
+                return;
+            }
+
+            pendingTeamUploadAction = async (file) => {
+                try {
+                    showNotification("Uploading team photo...", "info");
+                    const url = await uploadToR2(file, "team");
+                    const teamState = state.team || (state.team = { ...defaultTeam });
+                    if (!Array.isArray(teamState.team)) teamState.team = [];
+                    teamState.team[index] = { ...(teamState.team[index] || {}), photo: url };
+                    renderTeam();
+                    await saveSectionToKV("team");
+                    showNotification("Team photo uploaded successfully!", "success");
+                } catch (err) {
+                    console.error(err);
+                    showNotification("Team photo upload failed.", "error");
+                }
+            };
+            teamFileInputEl.click();
         };
 
         window.resetDefaults = () => {
@@ -1812,53 +1612,7 @@
             showNotification("Team member removed.", "success");
         };
 
-        // ==== TESTIMONIALS ADMIN ACTIONS ====
-        window.addTestimonial = () => {
-            if (!adminLoggedIn || !isEditing) {
-                showNotification("Enable admin edit mode to add testimonials.", "info");
-                return;
-            }
-
-            const testimonialsState = state.testimonials || (state.testimonials = { ...defaultTestimonials });
-            if (!Array.isArray(testimonialsState.testimonials)) {
-                testimonialsState.testimonials = [];
-            }
-
-            const colors = ["#ef4444", "#3b82f6", "#22c55e"];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-            testimonialsState.testimonials.push({
-                text: "Amazing experience being part of this club!",
-                author: "New Member",
-                title: "Member",
-                initials: "NM",
-                borderColor: randomColor
-            });
-
-            renderTestimonials();
-            saveSectionToKV("testimonials");
-            showNotification("New testimonial added. Click on text to edit.", "success");
-        };
-
-        window.removeTestimonial = (index) => {
-            if (!adminLoggedIn || !isEditing) {
-                showNotification("Enable admin edit mode to remove testimonials.", "info");
-                return;
-            }
-
-            const testimonialsState = state.testimonials || (state.testimonials = { ...defaultTestimonials });
-
-            if (!Array.isArray(testimonialsState.testimonials) || index < 0 || index >= testimonialsState.testimonials.length) {
-                return;
-            }
-
-            if (!confirm("Remove this testimonial?")) return;
-
-            testimonialsState.testimonials.splice(index, 1);
-            renderTestimonials();
-            saveSectionToKV("testimonials");
-            showNotification("Testimonial removed.", "success");
-        };
+        // Testimonials removed — admin actions deprecated per request
 
         // ==== CONTACT FORM ====
         window.handleContactSubmit = (event) => {
@@ -2030,6 +1784,24 @@
                 });
             }
 
+            // Init hidden team file input
+            teamFileInputEl = document.getElementById("team-file-input");
+            if (teamFileInputEl) {
+                teamFileInputEl.addEventListener("change", async (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file || !pendingTeamUploadAction) {
+                        e.target.value = "";
+                        return;
+                    }
+                    try {
+                        await pendingTeamUploadAction(file);
+                    } finally {
+                        pendingTeamUploadAction = null;
+                        e.target.value = "";
+                    }
+                });
+            }
+
             const yearEl = document.getElementById("year");
             if (yearEl) yearEl.textContent = new Date().getFullYear();
 
@@ -2060,7 +1832,7 @@
                         <a href="#about" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
                         <a href="#events" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Events</a>
                         <a href="#team" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Team</a>
-                        <a href="#testimonials" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Testimonials</a>
+                        <!-- Testimonials removed -->
                         <a href="#gallery" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Gallery</a>
                         <a href="#contact" class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Contact</a>
                     </div>
@@ -2080,7 +1852,7 @@
                 <a href="#about" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">About</a>
                 <a href="#events" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Events</a>
                 <a href="#team" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Team</a>
-                <a href="#testimonials" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Testimonials</a>
+                <!-- Testimonials removed -->
                 <a href="#gallery" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Gallery</a>
                 <a href="#contact" class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Contact</a>
             </div>
@@ -2122,8 +1894,7 @@
                     <i class="fa-solid fa-calendar-check mr-2"></i>View Events
                 </a>
                 <a href="#contact"
-                    class="bg-white/20 backdrop-blur text-white font-bold py-4 px-10 rounded-lg border-2 border-white hover:bg-white/30 transition-all transform hover:scale-105 text-lg"
-                    style="">
+                    class="bg-white/20 backdrop-blur text-white font-bold py-4 px-10 rounded-lg border-2 border-white hover:bg-white/30 transition-all transform hover:scale-105 text-lg">
                     <i class="fa-solid fa-envelope mr-2"></i>Get In Touch
                 </a>
             </div>
@@ -2259,27 +2030,7 @@
         </div>
     </section>
 
-    <!-- TESTIMONIALS SECTION -->
-    <section id="testimonials" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
-                <div>
-                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                        <i class="fa-solid fa-star mr-2"></i>What People Say
-                    </h2>
-                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                        Member Testimonials
-                    </p>
-                </div>
-                <button type="button" onclick="window.addTestimonial()"
-                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
-                    title="Add new testimonial">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Testimonial
-                </button>
-            </div>
-            <div id="testimonials-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-        </div>
-    </section>
+    <!-- Testimonials removed per request -->
 
     <!-- GALLERY -->
     <section id="gallery" class="py-20 bg-white">
@@ -2306,85 +2057,7 @@
         </div>
     </section>
 
-    <!-- SOCIAL MEDIA -->
-    <section id="social-media" class="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                    <i class="fa-solid fa-share-nodes mr-2"></i>Follow Us
-                </h2>
-                <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                    Social Media Feeds
-                </p>
-                <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
-                    Connect with us on Instagram and Facebook to stay updated with latest events and moments
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-12 mb-8">
-                <!-- Instagram Feed -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 p-6 text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-brands fa-instagram text-3xl"></i>
-                                <h3 class="text-2xl font-bold">Instagram</h3>
-                            </div>
-                            ${adminLoggedIn ? `
-                                <button onclick="toggleSocialMedia('instagram')" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
-                                    <i class="fa-solid fa-cog mr-2"></i>Configure
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div id="instagram-feed" class="p-6 min-h-[300px] flex items-center justify-center">
-                        <div class="text-center text-gray-500">
-                            <i class="fa-solid fa-instagram text-5xl mb-4 block"></i>
-                            <p>Social media feeds coming soon!</p>
-                            <p class="text-sm mt-2">Enable Instagram in admin to display posts</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Facebook Feed -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-white">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-brands fa-facebook text-3xl"></i>
-                                <h3 class="text-2xl font-bold">Facebook</h3>
-                            </div>
-                            ${adminLoggedIn ? `
-                                <button onclick="toggleSocialMedia('facebook')" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors">
-                                    <i class="fa-solid fa-cog mr-2"></i>Configure
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div id="facebook-feed" class="p-6 min-h-[300px] flex items-center justify-center">
-                        <div class="text-center text-gray-500">
-                            <i class="fa-solid fa-facebook text-5xl mb-4 block"></i>
-                            <p>Social media feeds coming soon!</p>
-                            <p class="text-sm mt-2">Enable Facebook in admin to display posts</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            ${adminLoggedIn ? `
-                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
-                    <h4 class="font-bold text-blue-900 mb-3"><i class="fa-solid fa-info-circle mr-2"></i>Admin Note</h4>
-                    <p class="text-blue-800 text-sm mb-3">
-                        To enable Instagram and Facebook feeds, enter your profile IDs/usernames in the configuration panel. 
-                        This allows visitors to see your latest posts directly on the website.
-                    </p>
-                    <button onclick="openAdminDashboard()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
-                        <i class="fa-solid fa-sliders mr-2"></i>Open Admin Dashboard
-                    </button>
-                </div>
-            ` : ''}
-        </div>
-    </section>
+    <!-- Social media removed per request -->
 
     <!-- CONTACT -->
     <section id="contact" class="py-20 text-white transition-colors duration-300"
@@ -2703,10 +2376,7 @@
                         <div class="dashboard-stat-number text-white" id="stat-team">4</div>
                         <div class="dashboard-stat-label text-white">Team Members</div>
                     </div>
-                    <div class="dashboard-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <div class="dashboard-stat-number text-white" id="stat-testimonials">3</div>
-                        <div class="dashboard-stat-label text-white">Testimonials</div>
-                    </div>
+                    <!-- Testimonials stat removed -->
                     <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
                         <div class="dashboard-stat-number text-white" id="stat-events">3</div>
                         <div class="dashboard-stat-label text-white">Events</div>
@@ -2739,14 +2409,7 @@
                             <p class="text-sm text-gray-600">Update team members</p>
                         </div>
                     </button>
-                    <button onclick="document.getElementById('testimonials-container').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
-                        class="flex items-center gap-3 p-4 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors border-l-4 border-pink-500">
-                        <i class="fa-solid fa-star text-2xl text-pink-600"></i>
-                        <div class="text-left">
-                            <p class="font-bold text-gray-900">Manage Testimonials</p>
-                            <p class="text-sm text-gray-600">Add or remove reviews</p>
-                        </div>
-                    </button>
+                    <!-- Testimonials quick action removed -->
                     <button onclick="document.getElementById('gallery-grid').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
                         class="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border-l-4 border-green-500">
                         <i class="fa-solid fa-images text-2xl text-green-600"></i>
@@ -2787,6 +2450,7 @@
     <input type="file" id="gallery-file-input" accept="image/*" class="hidden">
     <input type="file" id="hero-file-input" accept="image/*" class="hidden">
     <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+    <input type="file" id="team-file-input" accept="image/*" class="hidden">
 
 </body>
 
