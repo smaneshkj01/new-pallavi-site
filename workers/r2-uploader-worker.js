@@ -83,22 +83,15 @@ async function handleUpload(request, env) {
         await env.IMAGES_BUCKET.put(filename, arrayBuffer, {
             httpMetadata: {
                 contentType: file.type,
-                cacheControl: 'public, max-age=31536000, immutable'
             }
         });
 
-        // Construct public URL using R2_PUBLIC_URL env var or fallback to default
-        let publicUrl;
-        if (env.R2_PUBLIC_URL) {
-            publicUrl = `${env.R2_PUBLIC_URL}${filename}`;
-        } else {
-            // Fallback: use account ID and bucket name from env (if available) or default placeholder
-            const accountId = env.CLOUDFLARE_ACCOUNT_ID || 'YOUR-ACCOUNT-ID';
-            publicUrl = `https://pub-${accountId}.r2.dev/${filename}`;
-            console.warn('R2_PUBLIC_URL not set; using fallback URL. Set R2_PUBLIC_URL as a secret for CDN/custom domain.');
-        }
+        // Construct public URL
+        // Note: You'll need to set up a custom domain for your R2 bucket
+        // or use the default R2.dev domain
+        const publicUrl = `https://pub-YOUR-R2-BUCKET-ID.r2.dev/${filename}`;
 
-        console.log(`Successfully uploaded: ${filename} -> ${publicUrl}`);
+        console.log(`Successfully uploaded: ${filename}`);
 
         return new Response(JSON.stringify({
             success: true,
