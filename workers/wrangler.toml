@@ -1,0 +1,17 @@
+# Wrangler configuration for Content API Worker
+# This file configures the deployment settings for your Cloudflare Worker
+
+name = "boatclub-content-api"
+main = "content-api-worker.js"
+compatibility_date = "2024-01-01"
+
+# KV Namespace for storing content
+# You'll need to create this KV namespace in your Cloudflare dashboard first
+[[kv_namespaces]]
+binding = "CONTENT_STORE"
+id = "f92bca5462724ec3bcc3636138e4f692"
+
+# Routes - uncomment and configure if you want custom domain routing
+# routes = [
+#   { pattern = "boatclub-content-api.smanesh-kj.workers.dev/*", zone_name = "smanesh-kj.workers.dev" }
+# ]
