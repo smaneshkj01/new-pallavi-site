@@ -111,6 +111,33 @@ async function handleGetContent(env) {
  */
 async function handleUpdateContent(request, env) {
   try {
+    // --- Authorization: require admin token when configured ---
+    const authHeader = request.headers.get('x-admin-token') || request.headers.get('authorization');
+    let providedToken = null;
+    if (authHeader) {
+      if (authHeader.toLowerCase().startsWith('bearer ')) {
+        providedToken = authHeader.slice(7);
+      } else {
+        providedToken = authHeader;
+      }
+    }
+
+    // If an ADMIN_TOKEN is bound to the Worker, require it for update operations
+    if (env.ADMIN_TOKEN) {
+      if (!providedToken || providedToken !== env.ADMIN_TOKEN) {
+        return new Response(JSON.stringify({
+          error: 'Unauthorized',
+          message: 'Missing or invalid admin token'
+        }), {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders
+          }
+        });
+      }
+    }
+
     const body = await request.json();
     
     // Validate request

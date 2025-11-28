@@ -191,6 +191,25 @@ After deployment:
 3. ✅ Test the admin panel on your live website
 4. ✅ Make a test edit and verify it persists after refresh
 
+## Optional: Secure the Content API with an admin token
+
+For production you should require an admin token for update requests rather than relying on client-side credentials.
+
+1. Choose a strong token (e.g. a random 32+ character string).
+2. Set the token as a secret/environment binding for the Content API Worker.
+
+Using Wrangler (recommended):
+
+```bash
+wrangler secret put ADMIN_TOKEN
+```
+
+Or set the `ADMIN_TOKEN` environment variable in the Cloudflare dashboard for the worker.
+
+When `ADMIN_TOKEN` is set the worker will reject POST `/content/update` requests that do not include the matching token in either the `x-admin-token` request header or the `Authorization: Bearer <token>` header.
+
+On the front-end you can provide the token via a short-lived client input (the project includes a settings panel token input which stores the token in `sessionStorage` for the session). For production, prefer server-side flows that avoid shipping the token to browsers.
+
 ## Support
 
 If you encounter any issues:
