@@ -983,7 +983,8 @@
 
             const data = state.team || defaultTeam;
             const teamTitleEl = document.querySelector('[data-section="team"][data-key="title"]');
-            if (teamTitleEl) teamTitleEl.textContent = data.title || "Meet Our Leadership";
+            // Only set the title from state when not actively editing to avoid clobbering user edits
+            if (teamTitleEl && !isEditing) teamTitleEl.textContent = data.title || "Meet Our Leadership";
             const team = Array.isArray(data.team) ? data.team : [];
 
             container.innerHTML = "";
@@ -1076,7 +1077,7 @@
                 state.about = withDefaults(defaultAbout, data.about);
                 state.events = withDefaults(defaultEvents, data.events);
                 state.gallery = withDefaults(defaultGallery, data.gallery);
-                state.team = withDefaults(defaultTeam, data.team);
+                state.team = withDefaults(defaultTeam, data.team || {});
 
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
