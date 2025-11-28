@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://smaneshkj01.github.io/new-pallavi-site/sitemap.xml

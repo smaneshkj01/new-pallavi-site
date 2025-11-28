@@ -9,10 +9,29 @@
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
+    <!-- Preconnects for performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- SEO / Social meta tags -->
+    <link rel="canonical" href="https://smaneshkj01.github.io/new-pallavi-site/">
+    <meta name="description" content="New Pallavi Arts & Sports Boat Club — annual boat races, cultural festivals and community events in Kerala.">
+    <meta property="og:title" content="New Pallavi Arts & Sports Boat Club">
+    <meta property="og:description" content="Join our boat races, cultural nights and community events—celebrating tradition and sport.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://smaneshkj01.github.io/new-pallavi-site/">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="New Pallavi Arts & Sports Boat Club">
+    <meta name="twitter:description" content="Annual boat races, cultural festivals and community events in Kerala.">
+
+    <!-- Basic Content Security Policy (adjust as needed on server) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
 
     <style>
         :root {
@@ -357,8 +376,10 @@
 <body class="bg-gray-100 text-gray-900">
 
     <script>
-        const ADMIN_USERNAME = "admin";
-        const ADMIN_PASSWORD = "India@123";
+        // Admin credentials are intentionally not hard-coded.
+        // Configure admin authentication on the server-side (Workers/KV) and validate there.
+        const ADMIN_USERNAME = null;
+        const ADMIN_PASSWORD = null;
         const WORKER_API = "https://boatclub-content-api.smanesh-kj.workers.dev";
         const R2_WORKER_URL = "https://boatclub-r2-uploader.smanesh-kj.workers.dev/";
 
@@ -762,6 +783,7 @@
 
                 wrapper.innerHTML = `
                     <img
+                        loading="lazy"
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                         src="${url}"
                         alt="Gallery ${index + 1}"
@@ -988,7 +1010,7 @@
                 card.className = "card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
 
                 const imageHtml = member.photo ?
-                    `<img id="team-photo-${index}" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
+                    `<img id="team-photo-${index}" loading="lazy" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
                     `<div class="h-48 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
                         <i class="fa-solid fa-user-tie text-6xl text-white/30"></i>
                     </div>`;
@@ -1900,6 +1922,9 @@
         style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
         <div class="absolute inset-0 overflow-hidden">
             <img id="hero-bg-img" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920"
+                srcset="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=600 600w, https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200 1200w, https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920 1920w"
+                sizes="(max-width: 768px) 100vw, 1920px"
+                loading="eager"
                 alt="Boat Race Background" class="w-full h-full object-cover opacity-80">
             <div class="absolute inset-0"
                 style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(239, 68, 68, 0.15));"></div>
@@ -1978,7 +2003,7 @@
                 </div>
             </div>
 
-            <div class="mt-12">
+                    <div class="mt-12">
                 <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
                     <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
                         <dt>
@@ -2144,18 +2169,18 @@
                     </div>
 
                     <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
-                    <div class="flex items-center gap-4">
-                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-facebook-f"></i>
+                    <div class="flex items-center gap-4" role="navigation" aria-label="Social links">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                            <i class="fa-brands fa-facebook-f" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-instagram"></i>
+                        <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                            <i class="fa-brands fa-instagram" aria-hidden="true"></i>
                         </a>
-                        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-twitter"></i>
+                        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                            <i class="fa-brands fa-twitter" aria-hidden="true"></i>
                         </a>
-                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-youtube"></i>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on YouTube" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                            <i class="fa-brands fa-youtube" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
