@@ -19,19 +19,22 @@
         crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- SEO / Social meta tags -->
-    <link rel="canonical" href="https://smaneshkj01.github.io/new-pallavi-site/">
-    <meta name="description" content="New Pallavi Arts & Sports Boat Club — annual boat races, cultural festivals and community events in Kerala.">
+    <link rel="canonical" href="https://newpallavi.in/">
+    <meta name="description"
+        content="New Pallavi Arts & Sports Boat Club — annual boat races, cultural festivals and community events in Kerala.">
     <meta property="og:title" content="New Pallavi Arts & Sports Boat Club">
-    <meta property="og:description" content="Join our boat races, cultural nights and community events—celebrating tradition and sport.">
+    <meta property="og:description"
+        content="Join our boat races, cultural nights and community events—celebrating tradition and sport.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://smaneshkj01.github.io/new-pallavi-site/">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200">
+    <meta property="og:url" content="https://newpallavi.in/">
+    <meta property="og:image" content="https://newpallavi.in/images/hero.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="New Pallavi Arts & Sports Boat Club">
     <meta name="twitter:description" content="Annual boat races, cultural festivals and community events in Kerala.">
 
     <!-- Basic Content Security Policy (adjust as needed on server) -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' https:; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https:;">
 
     <style>
         :root {
@@ -360,7 +363,7 @@
         }
 
         .hero-image-wrapper {
-            absolute;
+            position: absolute;
             inset: 0;
             overflow: hidden;
         }
@@ -377,29 +380,101 @@
         }
 
         :focus-visible {
-            outline: 3px solid rgba(59,130,246,0.9);
+            outline: 3px solid rgba(59, 130, 246, 0.9);
             outline-offset: 3px;
             border-radius: 6px;
         }
 
         .sr-only {
             position: absolute !important;
-            height: 1px; width: 1px;
-            overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
-            white-space: nowrap; border: 0; padding: 0; margin: -1px;
+            height: 1px;
+            width: 1px;
+            overflow: hidden;
+            clip: rect(1px, 1px, 1px, 1px);
+            white-space: nowrap;
+            border: 0;
+            padding: 0;
+            margin: -1px;
         }
 
         .social-icon {
             font-size: 18px;
-            width: 1em; height: 1em; display: inline-block; vertical-align: middle;
+            width: 1em;
+            height: 1em;
+            display: inline-block;
+            vertical-align: middle;
         }
 
-        a, button {
+        a,
+        button {
             transition: box-shadow 0.15s ease, transform 0.15s ease;
         }
 
-        a:focus-visible, button:focus-visible {
-            box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+        a:focus-visible,
+        button:focus-visible {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        /* Unified card styles for statistics and small cards */
+        .card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(2, 6, 23, 0.06);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(2, 6, 23, 0.09);
+        }
+
+        .stat-number {
+            font-size: 2.25rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: #475569;
+            margin-top: 0.5rem;
+            font-weight: 700;
+        }
+
+        /* Gallery LQIP (low-quality image placeholder) */
+        .gallery-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-placeholder {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            filter: blur(14px) scale(1.06);
+            transition: opacity .45s ease, filter .45s ease;
+        }
+
+        .gallery-img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity .35s ease, transform .5s ease;
+        }
+
+        .gallery-wrapper.loaded .gallery-placeholder {
+            opacity: 0;
+            filter: blur(0px) scale(1);
+        }
+
+        .gallery-wrapper.loaded .gallery-img {
+            opacity: 1;
+            transform: none;
         }
     </style>
 </head>
@@ -443,7 +518,7 @@
             clubName: "New Pallavi Arts & Sports Boat Club",
             heroTitle: "Riding the Waves of Tradition",
             heroSubtitle: "Annual Boat Race and Cultural Festival",
-            heroBg: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920",
+            heroBg: "images/hero.jpg",
             address: "123 River Side Road, Boat Club Junction, Kerala, India",
             phone: "+91 98765 43210",
             email: "contact@newpallaviboatclub.com",
@@ -624,23 +699,45 @@
 
         // --- CLOUDFLARE R2 UPLOAD ---
         async function uploadToR2(file, folder = "gallery") {
+            console.log(`[R2 Upload] Starting upload for file: ${file.name}, folder: ${folder}, size: ${file.size} bytes`);
             const formData = new FormData();
             formData.append("file", file);
             formData.append("folder", folder);
 
-            const response = await fetch(R2_WORKER_URL, {
-                method: "POST",
-                body: formData
-            });
+            let response;
+            try {
+                console.log(`[R2 Upload] Sending to: ${R2_WORKER_URL}`);
+                response = await fetch(R2_WORKER_URL, {
+                    method: "POST",
+                    body: formData
+                });
+                console.log(`[R2 Upload] Response received: status ${response.status}`);
+            } catch (err) {
+                console.error('[R2 Upload] Network error:', err);
+                throw new Error('Network error when uploading file. Check R2_WORKER_URL and network connectivity. Check browser console for details.');
+            }
 
+            // Helpful debug: read response body on failure to surface server errors
             if (!response.ok) {
-                throw new Error("Upload failed with status " + response.status);
+                let text = '';
+                try { text = await response.text(); } catch (e) { /* ignore */ }
+                console.error('[R2 Upload] Upload failed', response.status, text);
+                // Try to parse JSON error
+                try {
+                    const jsonErr = JSON.parse(text || '{}');
+                    throw new Error(jsonErr.message || jsonErr.error || `Upload failed (${response.status})`);
+                } catch (parseErr) {
+                    throw new Error(`Upload failed (${response.status}): ${text}`);
+                }
             }
 
             const result = await response.json();
+            console.log('[R2 Upload] Response JSON:', result);
             if (!result.success || !result.url) {
-                throw new Error(result.error || "Upload failed");
+                console.error('[R2 Upload] Upload response missing url or success:', result);
+                throw new Error(result.error || 'Upload failed: invalid response from uploader');
             }
+            console.log(`[R2 Upload] Success! URL: ${result.url}`);
             return result.url;
         }
 
@@ -810,18 +907,22 @@
 
             gallery.forEach((url, index) => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
+                wrapper.className = "gallery-wrapper card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
+
+                // Small generic SVG placeholder data URL to act as LQIP
+                const placeholderData = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='100%' height='100%' fill='%23cbd5e1'/></svg>`;
 
                 wrapper.innerHTML = `
+                    <div class="gallery-placeholder" style="background-image: url('${placeholderData}')"></div>
                     <img
                         loading="lazy"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+                        class="gallery-img group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                         src="${url}"
                         alt="Gallery ${index + 1}"
                         onclick="openLightbox(${index})"
                         data-section="gallery"
                         data-index="${index}"
-                    >
+                    />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button type="button"
@@ -838,9 +939,18 @@
                 `;
 
                 const img = wrapper.querySelector("img");
+                // If the image is already cached and complete, mark as loaded immediately
+                if (img.complete && img.naturalWidth !== 0) {
+                    try { wrapper.classList.add('loaded'); } catch (e) { /* ignore */ }
+                } else {
+                    img.addEventListener('load', () => {
+                        try { wrapper.classList.add('loaded'); } catch (e) { /* ignore */ }
+                    });
+                }
                 img.onerror = () => {
                     img.onerror = null;
                     img.src = "https://placehold.co/800x600/94a3b8/ffffff?text=Image+Missing";
+                    wrapper.classList.add('loaded');
                 };
 
                 grid.appendChild(wrapper);
@@ -2051,9 +2161,8 @@
         <div class="absolute inset-0 overflow-hidden">
             <img id="hero-bg-img" src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920"
                 srcset="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=600 600w, https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200 1200w, https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920 1920w"
-                sizes="(max-width: 768px) 100vw, 1920px"
-                loading="eager"
-                alt="Boat Race Background" class="w-full h-full object-cover opacity-80">
+                sizes="(max-width: 768px) 100vw, 1920px" loading="eager" alt="Boat Race Background"
+                class="w-full h-full object-cover opacity-80">
             <div class="absolute inset-0"
                 style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(239, 68, 68, 0.15));"></div>
         </div>
@@ -2093,527 +2202,560 @@
     </header>
 
     <main>
-    <!-- ABOUT -->
-    <section id="about" class="py-20 bg-gradient-to-br from-white to-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="lg:text-center mb-12">
-                <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                    <i class="fa-solid fa-info-circle mr-2"></i>About Us
-                </h2>
-                <p class="editable mt-2 text-4xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-5xl section-title"
-                    data-section="about" data-key="aboutTitle">A Legacy of Excellence</p>
-                <p class="editable mt-6 max-w-3xl text-lg text-gray-600 lg:mx-auto" data-section="about"
-                    data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing
-                    premier boat races and cultural events. Our mission is to preserve tradition while fostering
-                    athletic talent in our community.</p>
-            </div>
-
-            <!-- Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
-                    style="border-top-color: var(--primary-hex);">
-                    <div class="text-4xl font-bold" style="color: var(--primary-hex);">40+</div>
-                    <p class="text-gray-600 mt-2 font-semibold">Years of Legacy</p>
-                </div>
-                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
-                    style="border-top-color: #3b82f6;">
-                    <div class="text-4xl font-bold" style="color: #3b82f6;">100+</div>
-                    <p class="text-gray-600 mt-2 font-semibold">Active Members</p>
-                </div>
-                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
-                    style="border-top-color: #22c55e;">
-                    <div class="text-4xl font-bold" style="color: #22c55e;">25+</div>
-                    <p class="text-gray-600 mt-2 font-semibold">Annual Events</p>
-                </div>
-                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
-                    style="border-top-color: #f59e0b;">
-                    <div class="text-4xl font-bold" style="color: #f59e0b;">25+</div>
-                    <p class="text-gray-600 mt-2 font-semibold">Trophies Won</p>
-                </div>
-            </div>
-
-                    <div class="mt-12">
-                <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <dt>
-                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
-                                style="background: linear-gradient(135deg, #667eea, #764ba2);">
-                                <i class="fa-solid fa-trophy text-xl"></i>
-                            </div>
-                            <p class="text-lg leading-6 font-bold text-gray-900">
-                                Championships
-                            </p>
-                        </dt>
-                        <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat1">
-                            Winners of multiple regional boat racing regattas.</dd>
-                    </div>
-
-                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <dt>
-                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
-                                style="background: linear-gradient(135deg, #f093fb, #f5576c);">
-                                <i class="fa-solid fa-users text-xl"></i>
-                            </div>
-                            <p class="text-lg leading-6 font-bold text-gray-900">
-                                Community
-                            </p>
-                        </dt>
-                        <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat2">
-                            Over 500 active members dedicated to arts and sports.</dd>
-                    </div>
-
-                    <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
-                        <dt>
-                            <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
-                                style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
-                                <i class="fa-solid fa-palette text-xl"></i>
-                            </div>
-                            <p class="text-lg leading-6 font-bold text-gray-900">
-                                Arts & Culture
-                            </p>
-                        </dt>
-                        <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat3">
-                            Promoting local art forms through annual exhibitions.</dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
-    </section>
-
-    <!-- EVENTS -->
-    <section id="events" class="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
-                <div>
+        <!-- ABOUT -->
+        <section id="about" class="py-20 bg-gradient-to-br from-white to-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="lg:text-center mb-12">
                     <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                        <i class="fa-solid fa-calendar mr-2"></i>Upcoming Events
+                        <i class="fa-solid fa-info-circle mr-2"></i>About Us
                     </h2>
-                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                        What's Coming Next?
-                    </p>
+                    <p class="editable mt-2 text-4xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-5xl section-title"
+                        data-section="about" data-key="aboutTitle">A Legacy of Excellence</p>
+                    <p class="editable mt-6 max-w-3xl text-lg text-gray-600 lg:mx-auto" data-section="about"
+                        data-key="aboutText">New Pallavi Arts & Sports Boat Club has been at the forefront of organizing
+                        premier boat races and cultural events. Our mission is to preserve tradition while fostering
+                        athletic talent in our community.</p>
                 </div>
-                <button type="button" onclick="window.addEvent()"
-                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
-                    title="Add new event">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Event
-                </button>
-            </div>
-            <div id="events-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
-        </div>
-    </section>
 
-    <!-- TEAM SECTION -->
-    <section id="team" class="py-20 bg-gradient-to-br from-slate-50 to-slate-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
-                <div>
-                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                        <i class="fa-solid fa-users-line mr-2"></i>Our Team
-                    </h2>
-                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title editable" data-section="team"
-                        data-key="title">
-                        Meet Our Leadership
-                    </p>
-                    <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
-                </div>
-                <button type="button" onclick="window.addTeamMember()"
-                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
-                    title="Add new team member">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Member
-                </button>
-            </div>
-            <div id="team-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
-        </div>
-    </section>
-
-    <!-- Testimonials removed per request -->
-
-    <!-- GALLERY -->
-    <section id="gallery" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
-                <div>
-                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
-                        <i class="fa-solid fa-images mr-2"></i>Photo Gallery
-                    </h2>
-                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
-                        Memories & Moments
-                    </p>
-                </div>
-                <button type="button" onclick="window.addGalleryImage()"
-                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
-                    title="Add new gallery image">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Image
-                </button>
-            </div>
-
-            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-        </div>
-    </section>
-
-    <!-- Social media removed per request -->
-
-    <!-- CONTACT -->
-    <section id="contact" class="py-20 text-white transition-colors duration-300"
-        style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-base font-semibold tracking-wide uppercase text-red-400">
-                    <i class="fa-solid fa-phone mr-2"></i>Get in Touch
-                </h2>
-                <p class="text-4xl font-extrabold mt-2">Let's Connect</p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8 mb-12">
-                <div
-                    class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
-                    <i class="fa-solid fa-map-pin text-3xl mb-4" style="color: var(--primary-hex);"></i>
-                    <h3 class="text-xl font-bold mb-2">Location</h3>
-                    <p class="editable text-gray-200" data-section="general" data-key="address">New Pallavi Nagar,
-                        Palazhi, Kerala, India</p>
-                </div>
-                <div
-                    class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
-                    <i class="fa-solid fa-phone text-3xl mb-4" style="color: var(--primary-hex);"></i>
-                    <h3 class="text-xl font-bold mb-2">Phone</h3>
-                    <p class="editable text-gray-200" data-section="general" data-key="phone">+91 9048079748</p>
-                </div>
-                <div
-                    class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
-                    <i class="fa-solid fa-envelope text-3xl mb-4" style="color: var(--primary-hex);"></i>
-                    <h3 class="text-xl font-bold mb-2">Email</h3>
-                    <p class="editable text-gray-200" data-section="general" data-key="email">
-                        contact@newpallaviboatclub.com</p>
-                </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="hidden md:block">
-                    <h3 class="text-2xl font-bold mb-6">Find Us On Map</h3>
-                    <div class="rounded-xl overflow-hidden shadow-lg border border-white/20 h-96">
-                        <iframe
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3939.7236!2d76.0841877!3d10.4977096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba7ed5343041c2d%3A0xd97a42f99324c4ee!2sNEW%20PALLAVI%20ARTS%26SPORTS%20BOAT%20CLUB%2C%20PALAZHY!5e0!3m2!1sen!2sin!4v1700000000000"
-                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade">
-                        </iframe>
+                <!-- Statistics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
+                    <div class="card card-hover border-t-4" style="border-top-color: var(--primary-hex);">
+                        <div class="stat-number" style="color: var(--primary-hex);">40+</div>
+                        <p class="stat-label">Years of Legacy</p>
                     </div>
-
-                    <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
-                    <div class="flex items-center gap-4" role="navigation" aria-label="Social links">
-                        <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-facebook-f social-icon" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-twitter social-icon" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on YouTube" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <i class="fa-brands fa-youtube social-icon" aria-hidden="true"></i>
-                        </a>
+                    <div class="card card-hover border-t-4" style="border-top-color: #3b82f6;">
+                        <div class="stat-number" style="color: #3b82f6;">100+</div>
+                        <p class="stat-label">Active Members</p>
+                    </div>
+                    <div class="card card-hover border-t-4" style="border-top-color: #22c55e;">
+                        <div class="stat-number" style="color: #22c55e;">25+</div>
+                        <p class="stat-label">Annual Events</p>
+                    </div>
+                    <div class="card card-hover border-t-4" style="border-top-color: #f59e0b;">
+                        <div class="stat-number" style="color: #f59e0b;">25+</div>
+                        <p class="stat-label">Trophies Won</p>
                     </div>
                 </div>
-            </div>
-        </div>
-        </main>
 
-        <!-- SITE FOOTER -->
-        <footer class="bg-gray-900 text-white py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
-                <div class="text-sm text-gray-300">&copy; <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.</div>
-                <div class="mt-4 md:mt-0 flex items-center gap-3">
-                    <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-white/80 hover:text-white">
-                        <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
-                    </a>
-                    <a href="mailto:contact@newpallaviboatclub.com" aria-label="Email" class="text-white/80 hover:text-white">contact@newpallaviboatclub.com</a>
-                </div>
-            </div>
-        </footer>
-
-        <!-- NOTIFICATIONS -->
-        <div id="notification-container"
-            class="fixed bottom-24 right-6 z-50 flex flex-col items-end pointer-events-none">
-        </div>
-
-        <!-- FLOATING ADMIN CONTROLS -->
-        <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
-            <i id="admin-status-icon" title="Not Logged In"
-                class="fa-solid fa-user-lock text-2xl p-3 bg-gradient-to-br from-white to-gray-100 rounded-full shadow-xl text-red-500 border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
-                onclick="toggleSettings()"></i>
-
-            <div id="settings-panel"
-                class="hidden bg-white p-6 rounded-xl shadow-2xl mb-2 w-80 border-2 border-gray-200">
-                <h3 class="font-bold text-gray-900 mb-4 text-lg flex items-center">
-                    <i class="fa-solid fa-palette mr-2" style="color: var(--primary-hex);"></i>Theme Settings
-                </h3>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">Primary Color</label>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                        <button
-                            class="w-8 h-8 rounded-full bg-blue-500 ring-offset-2 hover:ring-2 ring-blue-300 transition-all"
-                            onclick="setPrimaryColor('#3b82f6')"></button>
-                        <button
-                            class="w-8 h-8 rounded-full bg-red-500 ring-offset-2 hover:ring-2 ring-red-300 transition-all"
-                            onclick="setPrimaryColor('#ef4444')"></button>
-                        <button
-                            class="w-8 h-8 rounded-full bg-green-500 ring-offset-2 hover:ring-2 ring-green-300 transition-all"
-                            onclick="setPrimaryColor('#22c55e')"></button>
-                        <button
-                            class="w-8 h-8 rounded-full bg-purple-500 ring-offset-2 hover:ring-2 ring-purple-300 transition-all"
-                            onclick="setPrimaryColor('#a855f7')"></button>
-                        <button
-                            class="w-8 h-8 rounded-full bg-orange-500 ring-offset-2 hover:ring-2 ring-orange-300 transition-all"
-                            onclick="setPrimaryColor('#f97316')"></button>
-                        <button
-                            class="w-8 h-8 rounded-full bg-pink-500 ring-offset-2 hover:ring-2 ring-pink-300 transition-all"
-                            onclick="setPrimaryColor('#ec4899')"></button>
-                    </div>
-                    <input type="color" id="custom-primary"
-                        class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm"
-                        onchange="setPrimaryColor(this.value)" value="#ef4444">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Secondary Color (Dark)</label>
-                    <input type="color" id="custom-secondary"
-                        class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm" value="#0f172a"
-                        onchange="setSecondaryColor(this.value)">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
-                    <button onclick="uploadHeroImage()"
-                        class="w-full text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 px-3 rounded-lg mb-2 transition-all font-medium">
-                        <i class="fa-solid fa-upload mr-2"></i> Upload Image
-                    </button>
-                    <input type="text" id="hero-bg-input"
-                        class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                        placeholder="Or paste URL..." onchange="setHeroImage(this.value)">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Admin API Token (optional)</label>
-                    <input type="text" id="admin-token-input"
-                        class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
-                        placeholder="Enter admin token for server-side saves">
-                    <div class="mt-2 flex gap-2">
-                        <button onclick="saveAdminToken()" class="px-3 py-2 bg-green-600 text-white rounded text-sm">Save Token</button>
-                        <button onclick="clearAdminToken()" class="px-3 py-2 bg-red-600 text-white rounded text-sm">Clear Token</button>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-2">Storing the token in your browser session enables server-side saves via the Workers API. For production, set `ADMIN_TOKEN` as a secret on the Worker and avoid using a client token.</p>
-                </div>
-
-                <button onclick="resetDefaults()"
-                    class="text-sm text-red-600 hover:text-red-700 font-semibold hover:underline transition-colors">
-                    <i class="fa-solid fa-redo mr-1"></i>Reset to Defaults
-                </button>
-            </div>
-
-            <div class="flex flex-col gap-3">
-                <button id="dashboard-btn" onclick="openAdminDashboard()" title="Admin Dashboard (Admin Only)"
-                    class="card-hover bg-gradient-to-br from-cyan-500 to-blue-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all border-2 border-blue-600">
-                    <i class="fa-solid fa-gauge text-xl"></i>
-                </button>
-                <button id="settings-btn" onclick="toggleSettings()" title="Theme Settings (Admin Only)"
-                    class="card-hover bg-gradient-to-br from-white to-gray-100 text-gray-800 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all border-2 border-gray-200">
-                    <i class="fa-solid fa-palette text-xl"></i>
-                </button>
-                <button id="edit-btn" onclick="toggleEditMode()" title="Enable Editing (Admin Login Required)"
-                    class="card-hover p-4 rounded-full shadow-xl hover:shadow-2xl transition-all bg-gradient-to-br from-red-500 to-red-600 text-white border-2 border-red-600">
-                    <i class="fa-solid fa-pen text-xl"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- ADMIN LOGIN MODAL -->
-        <div id="login-modal" class="modal-backdrop">
-            <div
-                class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 border border-gray-200">
-                <div class="text-center mb-8">
-                    <div class="inline-block p-4 rounded-full mb-4"
-                        style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
-                        <i class="fa-solid fa-lock-open text-3xl text-white"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-gray-900">Admin Login</h3>
-                    <p class="text-gray-600 mt-2 text-sm">Manage your club content</p>
-                </div>
-                <form onsubmit="event.preventDefault(); handleAdminLogin()">
-                    <div class="mb-5">
-                        <label for="admin-username" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fa-solid fa-user mr-2" style="color: var(--primary-hex);"></i>Username
-                        </label>
-                        <input type="text" id="admin-username"
-                            class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
-                            required autocomplete="username" placeholder="Enter username">
-                    </div>
-                    <div class="mb-6">
-                        <label for="admin-password" class="block text-sm font-semibold text-gray-700 mb-2">
-                            <i class="fa-solid fa-key mr-2" style="color: var(--primary-hex);"></i>Password
-                        </label>
-                        <input type="password" id="admin-password"
-                            class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
-                            required autocomplete="current-password" placeholder="Enter password">
-                    </div>
-                    <p id="login-error" class="text-red-500 text-sm mb-4 font-semibold flex items-center">
-                        <i class="fa-solid fa-exclamation-circle mr-2"></i><span id="error-text"></span>
-                    </p>
-                    <button type="submit"
-                        class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg transition-all shadow-md mb-3"
-                        style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
-                        <i class="fa-solid fa-sign-in-alt mr-2"></i>Log In
-                    </button>
-                    <button type="button" onclick="closeLoginModal()"
-                        class="w-full bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors">
-                        <i class="fa-solid fa-times mr-2"></i>Cancel
-                    </button>
-                </form>
-                <!-- Demo credentials removed for security -->
-            </div>
-        </div>
-
-        <!-- IMAGE POPUP -->
-        <div id="image-popup" class="fixed inset-0 bg-black/90 z-[9999] cursor-pointer">
-            <button id="popup-close-btn" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10"
-                onclick="closeImagePopup()">
-                <i class="fa-solid fa-times"></i>
-            </button>
-            <div class="w-full h-full flex items-center justify-center p-4">
-                <img id="popup-img" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
-                    alt="Gallery Image">
-            </div>
-        </div>
-
-        <!-- ENHANCED LIGHTBOX WITH SLIDESHOW -->
-        <div id="lightbox-modal" class="lightbox-modal">
-            <div class="lightbox-content">
-                <button
-                    class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 bg-black/40 hover:bg-black/60 rounded-full w-12 h-12 flex items-center justify-center transition-all z-50"
-                    onclick="closeLightbox()">
-                    <i class="fa-solid fa-times"></i>
-                </button>
-
-                <img id="lightbox-image" class="lightbox-image" alt="Gallery Image" />
-
-                <div class="lightbox-controls">
-                    <button class="lightbox-btn" onclick="prevImage()" title="Previous Image">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <span id="lightbox-counter" class="text-white text-lg font-semibold">1 / 6</span>
-                    <button class="lightbox-btn" onclick="nextImage()" title="Next Image">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ADMIN DASHBOARD MODAL -->
-        <div id="admin-dashboard" class="admin-dashboard">
-            <div class="dashboard-panel">
-                <div class="flex items-center justify-between p-8 border-b border-gray-200">
-                    <h2 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                        <i class="fa-solid fa-gauge text-3xl" style="color: var(--primary-hex);"></i>
-                        Admin Dashboard
-                    </h2>
-                    <button onclick="closeAdminDashboard()" class="text-gray-500 hover:text-gray-700 text-2xl">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
-                </div>
-
-                <div class="p-8">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Content Statistics</h3>
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card"
-                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <div class="dashboard-stat-number text-white" id="stat-team">4</div>
-                            <div class="dashboard-stat-label text-white">Team Members</div>
+                <div class="mt-12">
+                    <dl class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                        <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                            <dt>
+                                <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                    style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                                    <i class="fa-solid fa-trophy text-xl"></i>
+                                </div>
+                                <p class="text-lg leading-6 font-bold text-gray-900">
+                                    Championships
+                                </p>
+                            </dt>
+                            <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat1">
+                                Winners of multiple regional boat racing regattas.</dd>
                         </div>
-                        <!-- Testimonials stat removed -->
-                        <div class="dashboard-card"
-                            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                            <div class="dashboard-stat-number text-white" id="stat-events">3</div>
-                            <div class="dashboard-stat-label text-white">Events</div>
-                        </div>
-                        <div class="dashboard-card"
-                            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                            <div class="dashboard-stat-number text-white" id="stat-gallery">6</div>
-                            <div class="dashboard-stat-label text-white">Gallery Images</div>
-                        </div>
-                        <div class="dashboard-card"
-                            style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                            <div class="dashboard-stat-number text-white" id="stat-social">0</div>
-                            <div class="dashboard-stat-label text-white">Social Feeds Active</div>
-                        </div>
-                    </div>
 
-                    <h3 class="text-2xl font-bold text-gray-900 mt-12 mb-6">Quick Actions</h3>
-                    <div class="grid md:grid-cols-2 gap-4 mb-8">
-                        <button
-                            onclick="document.getElementById('events-container').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
-                            class="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border-l-4 border-blue-500">
-                            <i class="fa-solid fa-calendar text-2xl text-blue-600"></i>
-                            <div class="text-left">
-                                <p class="font-bold text-gray-900">Manage Events</p>
-                                <p class="text-sm text-gray-600">Add, edit, or remove events</p>
-                            </div>
-                        </button>
-                        <button
-                            onclick="document.getElementById('team-container').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
-                            class="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border-l-4 border-purple-500">
-                            <i class="fa-solid fa-users text-2xl text-purple-600"></i>
-                            <div class="text-left">
-                                <p class="font-bold text-gray-900">Manage Team</p>
-                                <p class="text-sm text-gray-600">Update team members</p>
-                            </div>
-                        </button>
-                        <!-- Testimonials quick action removed -->
-                        <button
-                            onclick="document.getElementById('gallery-grid').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
-                            class="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border-l-4 border-green-500">
-                            <i class="fa-solid fa-images text-2xl text-green-600"></i>
-                            <div class="text-left">
-                                <p class="font-bold text-gray-900">Manage Gallery</p>
-                                <p class="text-sm text-gray-600">Upload or remove images</p>
-                            </div>
-                        </button>
-                    </div>
+                        <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                            <dt>
+                                <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                    style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                                    <i class="fa-solid fa-users text-xl"></i>
+                                </div>
+                                <p class="text-lg leading-6 font-bold text-gray-900">
+                                    Community
+                                </p>
+                            </dt>
+                            <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat2">
+                                Over 500 active members dedicated to arts and sports.</dd>
+                        </div>
 
-                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-lg border border-gray-200">
-                        <p class="text-sm text-gray-700">
-                            <i class="fa-solid fa-lightbulb mr-2 text-yellow-500"></i>
-                            <strong>Tip:</strong> Click the edit button (pencil icon) in the bottom right to enter edit
-                            mode. You can then click any text on the website to edit it directly.
+                        <div class="card-hover bg-white p-6 rounded-lg shadow-md hover:shadow-lg">
+                            <dt>
+                                <div class="flex items-center justify-center h-14 w-14 rounded-lg text-white mb-4"
+                                    style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                                    <i class="fa-solid fa-palette text-xl"></i>
+                                </div>
+                                <p class="text-lg leading-6 font-bold text-gray-900">
+                                    Arts & Culture
+                                </p>
+                            </dt>
+                            <dd class="editable mt-3 text-base text-gray-600" data-section="about" data-key="feat3">
+                                Promoting local art forms through annual exhibitions.</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENTS -->
+        <section id="events" class="py-20 bg-gradient-to-br from-gray-50 to-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                            <i class="fa-solid fa-calendar mr-2"></i>Upcoming Events
+                        </h2>
+                        <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                            What's Coming Next?
                         </p>
                     </div>
+                    <button type="button" onclick="window.addEvent()"
+                        class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                        title="Add new event">
+                        <i class="fa-solid fa-plus mr-2"></i> Add Event
+                    </button>
+                </div>
+                <div id="events-container" class="grid gap-8 md:grid-cols-2 lg:grid-cols-3"></div>
+            </div>
+        </section>
 
-                    <!-- Local Backups Management -->
-                    <div class="mt-8 p-6 bg-white rounded-lg border border-gray-200">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xl font-bold text-gray-900">Local Backups</h3>
-                            <div class="flex items-center gap-2">
-                                <button
-                                    onclick="(async ()=>{ const backups = listLocalBackups(); for(const b of backups){ await pushLocalBackup(b.section); } renderLocalBackups(); })()"
-                                    class="px-3 py-2 bg-green-600 text-white rounded text-sm">Push All</button>
-                                <button onclick="clearAllLocalBackups()"
-                                    class="px-3 py-2 bg-red-600 text-white rounded text-sm">Clear All</button>
-                            </div>
+        <!-- TEAM SECTION -->
+        <section id="team" class="py-20 bg-gradient-to-br from-slate-50 to-slate-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                            <i class="fa-solid fa-users-line mr-2"></i>Our Team
+                        </h2>
+                        <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title editable" data-section="team"
+                            data-key="title">
+                            Meet Our Leadership
+                        </p>
+                        <p class="mt-4 text-lg text-gray-600">Dedicated individuals driving our mission forward</p>
+                    </div>
+                    <button type="button" onclick="window.addTeamMember()"
+                        class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                        title="Add new team member">
+                        <i class="fa-solid fa-plus mr-2"></i> Add Member
+                    </button>
+                </div>
+                <div id="team-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+            </div>
+        </section>
+
+        <!-- Testimonials removed per request -->
+
+        <!-- GALLERY -->
+        <section id="gallery" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                            <i class="fa-solid fa-images mr-2"></i>Photo Gallery
+                        </h2>
+                        <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                            Memories & Moments
+                        </p>
+                    </div>
+                    <button type="button" onclick="window.addGalleryImage()"
+                        class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                        title="Add new gallery image">
+                        <i class="fa-solid fa-plus mr-2"></i> Add Image
+                    </button>
+                </div>
+
+                <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+            </div>
+        </section>
+
+        <!-- Social media removed per request -->
+
+        <!-- CONTACT -->
+        <section id="contact" class="py-20 text-white transition-colors duration-300"
+            style="background: linear-gradient(135deg, var(--secondary-hex) 0%, #1e293b 100%);">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-base font-semibold tracking-wide uppercase text-red-400">
+                        <i class="fa-solid fa-phone mr-2"></i>Get in Touch
+                    </h2>
+                    <p class="text-4xl font-extrabold mt-2">Let's Connect</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div
+                        class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                        <i class="fa-solid fa-map-pin text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                        <h3 class="text-xl font-bold mb-2">Location</h3>
+                        <p class="editable text-gray-200" data-section="general" data-key="address">New Pallavi Nagar,
+                            Palazhi, Kerala, India</p>
+                    </div>
+                    <div
+                        class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                        <i class="fa-solid fa-phone text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                        <h3 class="text-xl font-bold mb-2">Phone</h3>
+                        <p class="editable text-gray-200" data-section="general" data-key="phone">+91 9048079748</p>
+                    </div>
+                    <div
+                        class="card-hover bg-white/10 backdrop-blur p-8 rounded-xl border border-white/20 hover:border-white/40">
+                        <i class="fa-solid fa-envelope text-3xl mb-4" style="color: var(--primary-hex);"></i>
+                        <h3 class="text-xl font-bold mb-2">Email</h3>
+                        <p class="editable text-gray-200" data-section="general" data-key="email">
+                            contact@newpallaviboatclub.com</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="hidden md:block">
+                        <h3 class="text-2xl font-bold mb-6">Find Us On Map</h3>
+                        <div class="rounded-xl overflow-hidden shadow-lg border border-white/20 h-96">
+                            <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3939.7236!2d76.0841877!3d10.4977096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba7ed5343041c2d%3A0xd97a42f99324c4ee!2sNEW%20PALLAVI%20ARTS%26SPORTS%20BOAT%20CLUB%2C%20PALAZHY!5e0!3m2!1sen!2sin!4v1700000000000"
+                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade">
+                            </iframe>
                         </div>
-                        <div id="local-backups-list" class="min-h-[80px]">
-                            <p class="text-sm text-gray-600">Checking for local backups...</p>
+
+                        <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
+                        <div class="flex items-center gap-4" role="navigation" aria-label="Social links">
+                            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer"
+                                aria-label="Follow on Facebook"
+                                class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <!-- Facebook SVG -->
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07C2 17.1 5.66 21.17 10.44 21.95v-6.99h-2.99v-2.9h2.99V9.41c0-2.96 1.76-4.59 4.45-4.59 1.29 0 2.64.23 2.64.23v2.9h-1.49c-1.47 0-1.92.91-1.92 1.84v2.2h3.27l-.52 2.9h-2.75V22C18.34 21.17 22 17.1 22 12.07z" />
+                                </svg>
+                            </a>
+                            <a href="https://www.instagram.com/_new__pallavi_/" target="_blank"
+                                rel="noopener noreferrer" aria-label="Follow on Instagram"
+                                class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <!-- Instagram SVG -->
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                    <path d="M17.5 6.5h.01" />
+                                </svg>
+                            </a>
+                            <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer"
+                                aria-label="Follow on Twitter"
+                                class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <!-- Twitter SVG -->
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M22.46 6c-.77.35-1.6.58-2.46.69a4.22 4.22 0 0 0 1.85-2.33 8.45 8.45 0 0 1-2.68 1.03 4.2 4.2 0 0 0-7.16 3.83A11.93 11.93 0 0 1 3.16 4.6a4.2 4.2 0 0 0 1.3 5.6 4.13 4.13 0 0 1-1.9-.53v.05a4.2 4.2 0 0 0 3.36 4.12 4.2 4.2 0 0 1-1.9.07 4.2 4.2 0 0 0 3.92 2.92A8.44 8.44 0 0 1 2 19.54 11.9 11.9 0 0 0 8.29 21c7.55 0 11.68-6.26 11.68-11.68v-.53A8.18 8.18 0 0 0 22.46 6z" />
+                                </svg>
+                            </a>
+                            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer"
+                                aria-label="Follow on YouTube"
+                                class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <!-- YouTube SVG -->
+                                <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M23.5 6.2a2.9 2.9 0 0 0-2.05-2.05C19.3 3.5 12 3.5 12 3.5s-7.3 0-9.45.66A2.9 2.9 0 0 0 .5 6.2 30.2 30.2 0 0 0 0 12a30.2 30.2 0 0 0 .5 5.8 2.9 2.9 0 0 0 2.05 2.05C4.7 20.5 12 20.5 12 20.5s7.3 0 9.45-.66a2.9 2.9 0 0 0 2.05-2.05A30.2 30.2 0 0 0 24 12a30.2 30.2 0 0 0-.5-5.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z" />
+                                </svg>
+                            </a>
                         </div>
-                        <p class="text-xs text-gray-500 mt-3">Backups are automatically created in your browser if
-                            saving to
-                            the server fails. Use the controls to push or remove them.</p>
                     </div>
                 </div>
             </div>
+    </main>
+
+    <!-- SITE FOOTER -->
+    <footer class="bg-gray-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+            <div class="text-sm text-gray-300">&copy; <span id="year">2025</span> New Pallavi Arts & Sports Boat Club.
+                All rights reserved.</div>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer"
+                    aria-label="Instagram" class="text-white/80 hover:text-white">
+                    <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                        <path d="M17.5 6.5h.01" />
+                    </svg>
+                </a>
+                <a href="mailto:contact@newpallaviboatclub.com" aria-label="Email"
+                    class="text-white/80 hover:text-white">contact@newpallaviboatclub.com</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notification-container" class="fixed bottom-24 right-6 z-50 flex flex-col items-end pointer-events-none">
+    </div>
+
+    <!-- FLOATING ADMIN CONTROLS -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end space-y-3">
+        <i id="admin-status-icon" title="Not Logged In"
+            class="fa-solid fa-user-lock text-2xl p-3 bg-gradient-to-br from-white to-gray-100 rounded-full shadow-xl text-red-500 border-2 border-gray-200 cursor-pointer hover:scale-110 transition-transform"
+            onclick="toggleSettings()"></i>
+
+        <div id="settings-panel" class="hidden bg-white p-6 rounded-xl shadow-2xl mb-2 w-80 border-2 border-gray-200">
+            <h3 class="font-bold text-gray-900 mb-4 text-lg flex items-center">
+                <i class="fa-solid fa-palette mr-2" style="color: var(--primary-hex);"></i>Theme Settings
+            </h3>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-3">Primary Color</label>
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <button
+                        class="w-8 h-8 rounded-full bg-blue-500 ring-offset-2 hover:ring-2 ring-blue-300 transition-all"
+                        onclick="setPrimaryColor('#3b82f6')"></button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-red-500 ring-offset-2 hover:ring-2 ring-red-300 transition-all"
+                        onclick="setPrimaryColor('#ef4444')"></button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-green-500 ring-offset-2 hover:ring-2 ring-green-300 transition-all"
+                        onclick="setPrimaryColor('#22c55e')"></button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-purple-500 ring-offset-2 hover:ring-2 ring-purple-300 transition-all"
+                        onclick="setPrimaryColor('#a855f7')"></button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-orange-500 ring-offset-2 hover:ring-2 ring-orange-300 transition-all"
+                        onclick="setPrimaryColor('#f97316')"></button>
+                    <button
+                        class="w-8 h-8 rounded-full bg-pink-500 ring-offset-2 hover:ring-2 ring-pink-300 transition-all"
+                        onclick="setPrimaryColor('#ec4899')"></button>
+                </div>
+                <input type="color" id="custom-primary"
+                    class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm"
+                    onchange="setPrimaryColor(this.value)" value="#ef4444">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Secondary Color (Dark)</label>
+                <input type="color" id="custom-secondary"
+                    class="w-full h-10 cursor-pointer rounded-lg border border-gray-300 shadow-sm" value="#0f172a"
+                    onchange="setSecondaryColor(this.value)">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Hero Image</label>
+                <button onclick="uploadHeroImage()"
+                    class="w-full text-sm bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 px-3 rounded-lg mb-2 transition-all font-medium">
+                    <i class="fa-solid fa-upload mr-2"></i> Upload Image
+                </button>
+                <input type="text" id="hero-bg-input"
+                    class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                    placeholder="Or paste URL..." onchange="setHeroImage(this.value)">
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Admin API Token (optional)</label>
+                <input type="text" id="admin-token-input"
+                    class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-800 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                    placeholder="Enter admin token for server-side saves">
+                <div class="mt-2 flex gap-2">
+                    <button onclick="saveAdminToken()" class="px-3 py-2 bg-green-600 text-white rounded text-sm">Save
+                        Token</button>
+                    <button onclick="clearAdminToken()" class="px-3 py-2 bg-red-600 text-white rounded text-sm">Clear
+                        Token</button>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Storing the token in your browser session enables server-side
+                    saves via the Workers API. For production, set `ADMIN_TOKEN` as a secret on the Worker and avoid
+                    using a client token.</p>
+            </div>
+
+            <button onclick="resetDefaults()"
+                class="text-sm text-red-600 hover:text-red-700 font-semibold hover:underline transition-colors">
+                <i class="fa-solid fa-redo mr-1"></i>Reset to Defaults
+            </button>
         </div>
 
-        <!-- Hidden file inputs for uploads -->
-        <input type="file" id="gallery-file-input" accept="image/*" class="hidden">
-        <input type="file" id="hero-file-input" accept="image/*" class="hidden">
-        <input type="file" id="logo-file-input" accept="image/*" class="hidden">
-        <input type="file" id="team-file-input" accept="image/*" class="hidden">
+        <div class="flex flex-col gap-3">
+            <button id="dashboard-btn" onclick="openAdminDashboard()" title="Admin Dashboard (Admin Only)"
+                class="card-hover bg-gradient-to-br from-cyan-500 to-blue-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all border-2 border-blue-600">
+                <i class="fa-solid fa-gauge text-xl"></i>
+            </button>
+            <button id="settings-btn" onclick="toggleSettings()" title="Theme Settings (Admin Only)"
+                class="card-hover bg-gradient-to-br from-white to-gray-100 text-gray-800 p-4 rounded-full shadow-xl hover:shadow-2xl transition-all border-2 border-gray-200">
+                <i class="fa-solid fa-palette text-xl"></i>
+            </button>
+            <button id="edit-btn" onclick="toggleEditMode()" title="Enable Editing (Admin Login Required)"
+                class="card-hover p-4 rounded-full shadow-xl hover:shadow-2xl transition-all bg-gradient-to-br from-red-500 to-red-600 text-white border-2 border-red-600">
+                <i class="fa-solid fa-pen text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="login-modal" class="modal-backdrop">
+        <div
+            class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 border border-gray-200">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 rounded-full mb-4"
+                    style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                    <i class="fa-solid fa-lock-open text-3xl text-white"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-900">Admin Login</h3>
+                <p class="text-gray-600 mt-2 text-sm">Manage your club content</p>
+            </div>
+            <form onsubmit="event.preventDefault(); handleAdminLogin()">
+                <div class="mb-5">
+                    <label for="admin-username" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fa-solid fa-user mr-2" style="color: var(--primary-hex);"></i>Username
+                    </label>
+                    <input type="text" id="admin-username"
+                        class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                        required autocomplete="username" placeholder="Enter username">
+                </div>
+                <div class="mb-6">
+                    <label for="admin-password" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fa-solid fa-key mr-2" style="color: var(--primary-hex);"></i>Password
+                    </label>
+                    <input type="password" id="admin-password"
+                        class="w-full rounded-lg border border-gray-300 shadow-sm p-3 focus:border-red-500 focus:ring-2 focus:ring-red-200 outline-none transition-all"
+                        required autocomplete="current-password" placeholder="Enter password">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm mb-4 font-semibold flex items-center">
+                    <i class="fa-solid fa-exclamation-circle mr-2"></i><span id="error-text"></span>
+                </p>
+                <button type="submit"
+                    class="w-full btn-primary text-white font-bold py-3 px-4 rounded-lg hover:shadow-lg transition-all shadow-md mb-3"
+                    style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
+                    <i class="fa-solid fa-sign-in-alt mr-2"></i>Log In
+                </button>
+                <button type="button" onclick="closeLoginModal()"
+                    class="w-full bg-gray-200 text-gray-800 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fa-solid fa-times mr-2"></i>Cancel
+                </button>
+            </form>
+            <!-- Demo credentials removed for security -->
+        </div>
+    </div>
+
+    <!-- IMAGE POPUP -->
+    <div id="image-popup" class="fixed inset-0 bg-black/90 z-[9999] cursor-pointer">
+        <button id="popup-close-btn" class="absolute top-4 right-4 text-white text-3xl hover:text-gray-300 z-10"
+            onclick="closeImagePopup()">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <div class="w-full h-full flex items-center justify-center p-4">
+            <img id="popup-img" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                alt="Gallery Image">
+        </div>
+    </div>
+
+    <!-- ENHANCED LIGHTBOX WITH SLIDESHOW -->
+    <div id="lightbox-modal" class="lightbox-modal">
+        <div class="lightbox-content">
+            <button
+                class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 bg-black/40 hover:bg-black/60 rounded-full w-12 h-12 flex items-center justify-center transition-all z-50"
+                onclick="closeLightbox()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+
+            <img id="lightbox-image" class="lightbox-image" alt="Gallery Image" />
+
+            <div class="lightbox-controls">
+                <button class="lightbox-btn" onclick="prevImage()" title="Previous Image">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="lightbox-counter" class="text-white text-lg font-semibold">1 / 6</span>
+                <button class="lightbox-btn" onclick="nextImage()" title="Next Image">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD MODAL -->
+    <div id="admin-dashboard" class="admin-dashboard">
+        <div class="dashboard-panel">
+            <div class="flex items-center justify-between p-8 border-b border-gray-200">
+                <h2 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <i class="fa-solid fa-gauge text-3xl" style="color: var(--primary-hex);"></i>
+                    Admin Dashboard
+                </h2>
+                <button onclick="closeAdminDashboard()" class="text-gray-500 hover:text-gray-700 text-2xl">
+                    <i class="fa-solid fa-times"></i>
+                </button>
+            </div>
+
+            <div class="p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Content Statistics</h3>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="dashboard-stat-number text-white" id="stat-team">4</div>
+                        <div class="dashboard-stat-label text-white">Team Members</div>
+                    </div>
+                    <!-- Testimonials stat removed -->
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <div class="dashboard-stat-number text-white" id="stat-events">3</div>
+                        <div class="dashboard-stat-label text-white">Events</div>
+                    </div>
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                        <div class="dashboard-stat-number text-white" id="stat-gallery">6</div>
+                        <div class="dashboard-stat-label text-white">Gallery Images</div>
+                    </div>
+                    <div class="dashboard-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <div class="dashboard-stat-number text-white" id="stat-social">0</div>
+                        <div class="dashboard-stat-label text-white">Social Feeds Active</div>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold text-gray-900 mt-12 mb-6">Quick Actions</h3>
+                <div class="grid md:grid-cols-2 gap-4 mb-8">
+                    <button
+                        onclick="document.getElementById('events-container').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
+                        class="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border-l-4 border-blue-500">
+                        <i class="fa-solid fa-calendar text-2xl text-blue-600"></i>
+                        <div class="text-left">
+                            <p class="font-bold text-gray-900">Manage Events</p>
+                            <p class="text-sm text-gray-600">Add, edit, or remove events</p>
+                        </div>
+                    </button>
+                    <button
+                        onclick="document.getElementById('team-container').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
+                        class="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors border-l-4 border-purple-500">
+                        <i class="fa-solid fa-users text-2xl text-purple-600"></i>
+                        <div class="text-left">
+                            <p class="font-bold text-gray-900">Manage Team</p>
+                            <p class="text-sm text-gray-600">Update team members</p>
+                        </div>
+                    </button>
+                    <!-- Testimonials quick action removed -->
+                    <button
+                        onclick="document.getElementById('gallery-grid').scrollIntoView({behavior: 'smooth'}); closeAdminDashboard();"
+                        class="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors border-l-4 border-green-500">
+                        <i class="fa-solid fa-images text-2xl text-green-600"></i>
+                        <div class="text-left">
+                            <p class="font-bold text-gray-900">Manage Gallery</p>
+                            <p class="text-sm text-gray-600">Upload or remove images</p>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-lg border border-gray-200">
+                    <p class="text-sm text-gray-700">
+                        <i class="fa-solid fa-lightbulb mr-2 text-yellow-500"></i>
+                        <strong>Tip:</strong> Click the edit button (pencil icon) in the bottom right to enter edit
+                        mode. You can then click any text on the website to edit it directly.
+                    </p>
+                </div>
+
+                <!-- Local Backups Management -->
+                <div class="mt-8 p-6 bg-white rounded-lg border border-gray-200">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">Local Backups</h3>
+                        <div class="flex items-center gap-2">
+                            <button
+                                onclick="(async ()=>{ const backups = listLocalBackups(); for(const b of backups){ await pushLocalBackup(b.section); } renderLocalBackups(); })()"
+                                class="px-3 py-2 bg-green-600 text-white rounded text-sm">Push All</button>
+                            <button onclick="clearAllLocalBackups()"
+                                class="px-3 py-2 bg-red-600 text-white rounded text-sm">Clear All</button>
+                        </div>
+                    </div>
+                    <div id="local-backups-list" class="min-h-[80px]">
+                        <p class="text-sm text-gray-600">Checking for local backups...</p>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Backups are automatically created in your browser if
+                        saving to
+                        the server fails. Use the controls to push or remove them.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs for uploads -->
+    <input type="file" id="gallery-file-input" accept="image/*" class="hidden">
+    <input type="file" id="hero-file-input" accept="image/*" class="hidden">
+    <input type="file" id="logo-file-input" accept="image/*" class="hidden">
+    <input type="file" id="team-file-input" accept="image/*" class="hidden">
 
 </body>
 
