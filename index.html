@@ -401,25 +401,6 @@
         a:focus-visible, button:focus-visible {
             box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
         }
-        /* Unified card styles for statistics and small cards */
-        .card {
-            background: white;
-            padding: 1.75rem;
-            border-radius: 0.75rem;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(2,6,23,0.06);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        .card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(2,6,23,0.09); }
-        .stat-number { font-size: 2.25rem; font-weight: 800; }
-        .stat-label { color: #475569; margin-top: 0.5rem; font-weight: 700; }
-
-        /* Gallery LQIP (low-quality image placeholder) */
-        .gallery-wrapper { position: relative; overflow: hidden; }
-        .gallery-placeholder { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(14px) scale(1.06); transition: opacity .45s ease, filter .45s ease; }
-        .gallery-img { display: block; width:100%; height:100%; object-fit:cover; position: relative; z-index: 2; opacity: 0; transition: opacity .35s ease, transform .5s ease; }
-        .gallery-wrapper.loaded .gallery-placeholder { opacity: 0; filter: blur(0px) scale(1); }
-        .gallery-wrapper.loaded .gallery-img { opacity: 1; transform: none; }
     </style>
 </head>
 
@@ -829,22 +810,18 @@
 
             gallery.forEach((url, index) => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "gallery-wrapper card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
-
-                // Small generic SVG placeholder data URL to act as LQIP
-                const placeholderData = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='100%' height='100%' fill='%23cbd5e1'/></svg>`;
+                wrapper.className = "card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
                 wrapper.innerHTML = `
-                    <div class="gallery-placeholder" style="background-image: url('${placeholderData}')"></div>
                     <img
                         loading="lazy"
-                        class="gallery-img group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                         src="${url}"
                         alt="Gallery ${index + 1}"
                         onclick="openLightbox(${index})"
                         data-section="gallery"
                         data-index="${index}"
-                    />
+                    >
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <button type="button"
@@ -861,18 +838,9 @@
                 `;
 
                 const img = wrapper.querySelector("img");
-                // If the image is already cached and complete, mark as loaded immediately
-                if (img.complete && img.naturalWidth !== 0) {
-                    try { wrapper.classList.add('loaded'); } catch (e) { /* ignore */ }
-                } else {
-                    img.addEventListener('load', () => {
-                        try { wrapper.classList.add('loaded'); } catch(e) { /* ignore */ }
-                    });
-                }
                 img.onerror = () => {
                     img.onerror = null;
                     img.src = "https://placehold.co/800x600/94a3b8/ffffff?text=Image+Missing";
-                    wrapper.classList.add('loaded');
                 };
 
                 grid.appendChild(wrapper);
@@ -2142,21 +2110,25 @@
 
             <!-- Statistics -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-16">
-                <div class="card card-hover border-t-4" style="border-top-color: var(--primary-hex);">
-                    <div class="stat-number" style="color: var(--primary-hex);">40+</div>
-                    <p class="stat-label">Years of Legacy</p>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
+                    style="border-top-color: var(--primary-hex);">
+                    <div class="text-4xl font-bold" style="color: var(--primary-hex);">40+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Years of Legacy</p>
                 </div>
-                <div class="card card-hover border-t-4" style="border-top-color: #3b82f6;">
-                    <div class="stat-number" style="color: #3b82f6;">100+</div>
-                    <p class="stat-label">Active Members</p>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
+                    style="border-top-color: #3b82f6;">
+                    <div class="text-4xl font-bold" style="color: #3b82f6;">100+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Active Members</p>
                 </div>
-                <div class="card card-hover border-t-4" style="border-top-color: #22c55e;">
-                    <div class="stat-number" style="color: #22c55e;">25+</div>
-                    <p class="stat-label">Annual Events</p>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
+                    style="border-top-color: #22c55e;">
+                    <div class="text-4xl font-bold" style="color: #22c55e;">25+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Annual Events</p>
                 </div>
-                <div class="card card-hover border-t-4" style="border-top-color: #f59e0b;">
-                    <div class="stat-number" style="color: #f59e0b;">25+</div>
-                    <p class="stat-label">Trophies Won</p>
+                <div class="card-hover bg-white p-8 rounded-xl text-center shadow-lg border-t-4"
+                    style="border-top-color: #f59e0b;">
+                    <div class="text-4xl font-bold" style="color: #f59e0b;">25+</div>
+                    <p class="text-gray-600 mt-2 font-semibold">Trophies Won</p>
                 </div>
             </div>
 
@@ -2328,20 +2300,16 @@
                     <h3 class="text-2xl font-bold mt-10 mb-6">Follow Us</h3>
                     <div class="flex items-center gap-4" role="navigation" aria-label="Social links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Facebook" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <!-- Facebook SVG -->
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07C2 17.1 5.66 21.17 10.44 21.95v-6.99h-2.99v-2.9h2.99V9.41c0-2.96 1.76-4.59 4.45-4.59 1.29 0 2.64.23 2.64.23v2.9h-1.49c-1.47 0-1.92.91-1.92 1.84v2.2h3.27l-.52 2.9h-2.75V22C18.34 21.17 22 17.1 22 12.07z"/></svg>
+                            <i class="fa-brands fa-facebook-f social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Instagram" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <!-- Instagram SVG -->
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>
+                            <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on Twitter" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <!-- Twitter SVG -->
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.22 4.22 0 0 0 1.85-2.33 8.45 8.45 0 0 1-2.68 1.03 4.2 4.2 0 0 0-7.16 3.83A11.93 11.93 0 0 1 3.16 4.6a4.2 4.2 0 0 0 1.3 5.6 4.13 4.13 0 0 1-1.9-.53v.05a4.2 4.2 0 0 0 3.36 4.12 4.2 4.2 0 0 1-1.9.07 4.2 4.2 0 0 0 3.92 2.92A8.44 8.44 0 0 1 2 19.54 11.9 11.9 0 0 0 8.29 21c7.55 0 11.68-6.26 11.68-11.68v-.53A8.18 8.18 0 0 0 22.46 6z"/></svg>
+                            <i class="fa-brands fa-twitter social-icon" aria-hidden="true"></i>
                         </a>
                         <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" aria-label="Follow on YouTube" class="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors">
-                            <!-- YouTube SVG -->
-                            <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M23.5 6.2a2.9 2.9 0 0 0-2.05-2.05C19.3 3.5 12 3.5 12 3.5s-7.3 0-9.45.66A2.9 2.9 0 0 0 .5 6.2 30.2 30.2 0 0 0 0 12a30.2 30.2 0 0 0 .5 5.8 2.9 2.9 0 0 0 2.05 2.05C4.7 20.5 12 20.5 12 20.5s7.3 0 9.45-.66a2.9 2.9 0 0 0 2.05-2.05A30.2 30.2 0 0 0 24 12a30.2 30.2 0 0 0-.5-5.8zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
+                            <i class="fa-brands fa-youtube social-icon" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -2355,7 +2323,7 @@
                 <div class="text-sm text-gray-300">&copy; <span id="year">2025</span> New Pallavi Arts & Sports Boat Club. All rights reserved.</div>
                 <div class="mt-4 md:mt-0 flex items-center gap-3">
                     <a href="https://www.instagram.com/_new__pallavi_/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="text-white/80 hover:text-white">
-                        <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><path d="M17.5 6.5h.01"/></svg>
+                        <i class="fa-brands fa-instagram social-icon" aria-hidden="true"></i>
                     </a>
                     <a href="mailto:contact@newpallaviboatclub.com" aria-label="Email" class="text-white/80 hover:text-white">contact@newpallaviboatclub.com</a>
                 </div>
