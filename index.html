@@ -1239,6 +1239,12 @@
                 if (Array.isArray(teamData)) teamData = { team: teamData };
                 state.team = withDefaults(defaultTeam, teamData || {});
 
+                // Override old hero image from API with new local image
+                // This ensures the new image is shown until a new one is uploaded via CMS
+                if (state.general.heroBg && state.general.heroBg.includes("0761a529-9daf-47f6-98f9-411ace5810c4")) {
+                    state.general.heroBg = "images/hero.jpg";
+                }
+
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
                     ["general", "about", "events", "gallery", "team"].forEach((sec) => {
