@@ -68,6 +68,7 @@
             about: null,
             events: null,
             gallery: null,
+            veeranatyam: null,
             team: null
         };
 
@@ -130,6 +131,14 @@
             ]
         };
 
+        const defaultVeeranatyam = {
+            veeranatyam: [
+                "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800",
+                "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
+                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800"
+            ]
+        };
+
         const defaultTeam = {
             title: "Meet Our Leadership",
             team: [
@@ -158,7 +167,7 @@
         };
 
         const allLoaded = () =>
-            state.general && state.about && state.events && state.gallery && state.team;
+            state.general && state.about && state.events && state.gallery && state.veeranatyam && state.team;
 
         // ==== UTILITIES ====
         const updateTailwindColors = (primary, secondary) => {
@@ -510,6 +519,67 @@
             });
         };
 
+        const renderVeeranatyam = () => {
+            const grid = document.getElementById("veeranatyam-grid");
+            if (!grid) return;
+
+            const data = state.veeranatyam || defaultVeeranatyam;
+            const veeranatyam = Array.isArray(data.veeranatyam) ? data.veeranatyam : [];
+
+            grid.innerHTML = "";
+
+            veeranatyam.forEach((url, index) => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "gallery-wrapper card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
+
+                // Small generic SVG placeholder data URL to act as LQIP
+                const placeholderData = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='100%' height='100%' fill='%23cbd5e1'/></svg>`;
+
+                wrapper.innerHTML = `
+                    <div class="gallery-placeholder" style="background-image: url('${placeholderData}')"></div>
+                    <img
+                        loading="lazy"
+                        class="gallery-img group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+                        src="${url}"
+                        alt="Veeranatyam ${index + 1}"
+                        onclick="openVeeranatyamLightbox(${index})"
+                        data-section="veeranatyam"
+                        data-index="${index}"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button type="button"
+                            class="px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                            onclick="window.editVeeranatyamImage(${index})">
+                            <i class="fa-solid fa-pen mr-1"></i>Edit
+                        </button>
+                        <button type="button"
+                            class="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+                            onclick="window.removeVeeranatyamImage(${index})">
+                            <i class="fa-solid fa-trash mr-1"></i>Remove
+                        </button>
+                    </div>
+                `;
+
+                const img = wrapper.querySelector("img");
+                // If the image is already cached and complete, mark as loaded immediately
+                if (img.complete && img.naturalWidth !== 0) {
+                    try { wrapper.classList.add('loaded'); } catch (e) { /* ignore */ }
+                } else {
+                    img.addEventListener('load', () => {
+                        try { wrapper.classList.add('loaded'); } catch(e) { /* ignore */ }
+                    });
+                }
+                img.onerror = () => {
+                    img.onerror = null;
+                    img.src = "https://placehold.co/800x600/94a3b8/ffffff?text=Image+Missing";
+                    wrapper.classList.add('loaded');
+                };
+
+                grid.appendChild(wrapper);
+            });
+        };
+
         // ==== ENHANCED LIGHTBOX FUNCTIONS ====
         window.openLightbox = (index) => {
             const data = state.gallery || defaultGallery;
@@ -550,6 +620,20 @@
             }
         };
 
+        // ==== VEERANATYAM LIGHTBOX FUNCTIONS ====
+        window.openVeeranatyamLightbox = (index) => {
+            const data = state.veeranatyam || defaultVeeranatyam;
+            const veeranatyam = Array.isArray(data.veeranatyam) ? data.veeranatyam : [];
+            if (!veeranatyam.length) return;
+
+            currentLightboxGallery = veeranatyam;
+            currentLightboxIndex = index;
+            showLightboxImage();
+
+            const modal = document.getElementById("lightbox-modal");
+            if (modal) modal.classList.add("show");
+        };
+
         // ==== ADMIN DASHBOARD FUNCTIONS ====
         window.openAdminDashboard = () => {
             const dashboard = document.getElementById("admin-dashboard");
@@ -571,12 +655,14 @@
                 totalTestimonials: 0,
                 totalEvents: (state.events?.events?.length || 0),
                 totalGalleryImages: (state.gallery?.gallery?.length || 0),
+                totalVeeranatyamImages: (state.veeranatyam?.veeranatyam?.length || 0),
                 socialFeedsEnabled: 0
             };
 
             document.getElementById("stat-team").textContent = stats.totalTeam;
             document.getElementById("stat-events").textContent = stats.totalEvents;
             document.getElementById("stat-gallery").textContent = stats.totalGalleryImages;
+            document.getElementById("stat-veeranatyam").textContent = stats.totalVeeranatyamImages;
             const socialEl = document.getElementById("stat-social"); if (socialEl) socialEl.textContent = stats.socialFeedsEnabled;
         };
 
@@ -759,6 +845,7 @@
             renderAbout();
             renderEvents();
             renderGallery();
+            renderVeeranatyam();
             renderTeam();
 
             const yearEl = document.getElementById("year");
@@ -787,6 +874,7 @@
                 state.about = withDefaults(defaultAbout, data.about);
                 state.events = withDefaults(defaultEvents, data.events);
                 state.gallery = withDefaults(defaultGallery, data.gallery);
+                state.veeranatyam = withDefaults(defaultVeeranatyam, data.veeranatyam);
                 // Normalize team payload: older data may store team as an array
                 let teamData = data.team;
                 if (Array.isArray(teamData)) teamData = { team: teamData };
@@ -794,7 +882,7 @@
 
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
-                    ["general", "about", "events", "gallery", "team"].forEach((sec) => {
+                    ["general", "about", "events", "gallery", "veeranatyam", "team"].forEach((sec) => {
                         const key = `np_backup_${sec}`;
                         const raw = localStorage.getItem(key);
                         if (raw) {
@@ -818,11 +906,12 @@
                 state.about = { ...defaultAbout };
                 state.events = { ...defaultEvents };
                 state.gallery = { ...defaultGallery };
+                state.veeranatyam = { ...defaultVeeranatyam };
                 state.team = { ...defaultTeam };
 
                 // Try to load local backups even if API failed
                 try {
-                    ["general", "about", "events", "gallery", "team"].forEach((sec) => {
+                    ["general", "about", "events", "gallery", "veeranatyam", "team"].forEach((sec) => {
                         const key = `np_backup_${sec}`;
                         const raw = localStorage.getItem(key);
                         if (raw) {
@@ -977,6 +1066,7 @@
                 saveSectionToKV("about"),
                 saveSectionToKV("events"),
                 saveSectionToKV("gallery"),
+                saveSectionToKV("veeranatyam"),
                 saveSectionToKV("team")
             ]);
             showNotification("✓ All content saved successfully!", "success");
@@ -1244,6 +1334,115 @@
             galleryState.gallery.splice(index, 1);
             renderGallery();
             saveSectionToKV("gallery");
+        };
+
+        // ==== VEERANATYAM ADMIN ACTIONS ====
+        window.addVeeranatyamImage = () => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add images.", "info");
+                return;
+            }
+
+            const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
+            if (!Array.isArray(veeranatyamState.veeranatyam)) {
+                veeranatyamState.veeranatyam = [];
+            }
+
+            const useLocal = confirm(
+                "Click OK to upload a photo from this device, or Cancel to paste an image URL."
+            );
+
+            if (useLocal) {
+                if (!galleryFileInputEl) {
+                    showNotification("File input not ready.", "error");
+                    return;
+                }
+                pendingGalleryUploadAction = async (file) => {
+                    try {
+                        showNotification("Uploading image...", "info");
+                        const url = await uploadToR2(file, "veeranatyam");
+                        veeranatyamState.veeranatyam.push(url);
+                        renderVeeranatyam();
+                        await saveSectionToKV("veeranatyam");
+                        showNotification("Image uploaded and added to Veeranatyam.", "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Image upload failed.", "error");
+                    }
+                };
+                galleryFileInputEl.click();
+            } else {
+                const url = prompt("Enter image URL:");
+                if (!url) return;
+                veeranatyamState.veeranatyam.push(url.trim());
+                renderVeeranatyam();
+                saveSectionToKV("veeranatyam");
+            }
+        };
+
+        window.editVeeranatyamImage = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit images.", "info");
+                return;
+            }
+
+            const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
+            if (!Array.isArray(veeranatyamState.veeranatyam) || index < 0 || index >= veeranatyamState.veeranatyam.length) {
+                return;
+            }
+
+            const choice = prompt(
+                "Type 1 to change URL, or 2 to upload a new local photo.",
+                "2"
+            );
+            if (!choice) return;
+
+            if (choice.trim() === "1") {
+                const currentUrl = veeranatyamState.veeranatyam[index];
+                const url = prompt("Enter new image URL:", currentUrl);
+                if (!url) return;
+                veeranatyamState.veeranatyam[index] = url.trim();
+                renderVeeranatyam();
+                saveSectionToKV("veeranatyam");
+            } else {
+                if (!galleryFileInputEl) {
+                    showNotification("File input not ready.", "error");
+                    return;
+                }
+                pendingGalleryUploadAction = async (file) => {
+                    try {
+                        showNotification("Updating image...", "info");
+                        const url = await uploadToR2(file, "veeranatyam");
+                        veeranatyamState.veeranatyam[index] = url;
+                        renderVeeranatyam();
+                        await saveSectionToKV("veeranatyam");
+                        showNotification("Image updated.", "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Image update failed.", "error");
+                    }
+                };
+                galleryFileInputEl.click();
+            }
+        };
+
+        window.removeVeeranatyamImage = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove images.", "info");
+                return;
+            }
+
+            const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
+
+            if (!Array.isArray(veeranatyamState.veeranatyam) || index < 0 || index >= veeranatyamState.veeranatyam.length) {
+                return;
+            }
+
+            if (!confirm("Remove this image from Veeranatyam?")) return;
+
+            veeranatyamState.veeranatyam.splice(index, 1);
+            renderVeeranatyam();
+            saveSectionToKV("veeranatyam");
         };
 
         // ==== EVENTS ADMIN ACTIONS ====
@@ -1681,6 +1880,8 @@
                         <!-- Testimonials removed -->
                         <a href="#gallery"
                             class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Gallery</a>
+                        <a href="#veeranatyam"
+                            class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Veeranatyam</a>
                         <a href="#contact"
                             class="nav-link hover:text-red-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">Contact</a>
                     </div>
@@ -1707,6 +1908,8 @@
                 <!-- Testimonials removed -->
                 <a href="#gallery"
                     class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Gallery</a>
+                <a href="#veeranatyam"
+                    class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Veeranatyam</a>
                 <a href="#contact"
                     class="block hover:bg-gray-700 hover:text-red-400 px-3 py-2 rounded-md text-base font-medium transition-colors">Contact</a>
             </div>
@@ -1908,6 +2111,29 @@
             </div>
 
             <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
+        </div>
+    </section>
+
+    <!-- VEERANATYAM -->
+    <section id="veeranatyam" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-12">
+                <div>
+                    <h2 class="text-base font-semibold tracking-wide uppercase" style="color: var(--primary-hex);">
+                        <i class="fa-solid fa-camera mr-2"></i>Veeranatyam
+                    </h2>
+                    <p class="text-4xl font-extrabold text-gray-900 mt-2 section-title">
+                        Traditional Dance
+                    </p>
+                </div>
+                <button type="button" onclick="window.addVeeranatyamImage()"
+                    class="admin-image-controls mt-4 md:mt-0 px-5 py-3 text-sm font-semibold rounded-lg border-2 border-dashed text-gray-700 hover:bg-gray-100 transition-all border-gray-400"
+                    title="Add new Veeranatyam image">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Image
+                </button>
+            </div>
+
+            <div id="veeranatyam-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
         </div>
     </section>
 
@@ -2219,6 +2445,11 @@
                             style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
                             <div class="dashboard-stat-number text-white" id="stat-gallery">6</div>
                             <div class="dashboard-stat-label text-white">Gallery Images</div>
+                        </div>
+                        <div class="dashboard-card"
+                            style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                            <div class="dashboard-stat-number text-white" id="stat-veeranatyam">3</div>
+                            <div class="dashboard-stat-label text-white">Veeranatyam Images</div>
                         </div>
                         <div class="dashboard-card"
                             style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
