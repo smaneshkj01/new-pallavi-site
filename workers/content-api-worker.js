@@ -66,7 +66,7 @@ export default {
 async function handleGetContent(env) {
   try {
     // Get all sections from KV
-    const sections = ['general', 'about', 'events', 'gallery', 'team'];
+    const sections = ['general', 'about', 'events', 'gallery', 'veeranatyam', 'team'];
     const content = {};
 
     for (const section of sections) {
@@ -157,7 +157,7 @@ async function handleUpdateContent(request, env) {
     const { section, data } = body;
 
     // Validate section name
-    const validSections = ['general', 'about', 'events', 'gallery', 'team'];
+    const validSections = ['general', 'about', 'events', 'gallery', 'veeranatyam', 'team'];
     if (!validSections.includes(section)) {
       return new Response(JSON.stringify({ 
         error: 'Bad Request',
