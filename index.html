@@ -122,20 +122,20 @@
 
         const defaultGallery = {
             gallery: [
-                "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800",
-                "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
-                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800",
-                "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800",
-                "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?q=80&w=800",
-                "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=800"
+                {url: "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1571008887538-b36bb32f4571?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=800", position: "center top"}
             ]
         };
 
         const defaultVeeranatyam = {
             veeranatyam: [
-                "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800",
-                "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800",
-                "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800"
+                {url: "https://images.unsplash.com/photo-1502086223501-6a1a1741a94f?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800", position: "center top"},
+                {url: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?q=80&w=800", position: "center top"}
             ]
         };
 
@@ -467,7 +467,9 @@
 
             grid.innerHTML = "";
 
-            gallery.forEach((url, index) => {
+            gallery.forEach((item, index) => {
+                const url = typeof item === 'string' ? item : item.url;
+                const position = typeof item === 'object' && item.position ? item.position : 'center top';
                 const wrapper = document.createElement("div");
                 wrapper.className = "gallery-wrapper card-hover group h-80 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
@@ -484,6 +486,7 @@
                         onclick="openLightbox(${index})"
                         data-section="gallery"
                         data-index="${index}"
+                        style="object-position: ${position};"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -528,7 +531,9 @@
 
             grid.innerHTML = "";
 
-            veeranatyam.forEach((url, index) => {
+            veeranatyam.forEach((item, index) => {
+                const url = typeof item === 'string' ? item : item.url;
+                const position = typeof item === 'object' && item.position ? item.position : 'center top';
                 const wrapper = document.createElement("div");
                 wrapper.className = "gallery-wrapper card-hover group h-80 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
@@ -545,6 +550,7 @@
                         onclick="openVeeranatyamLightbox(${index})"
                         data-section="veeranatyam"
                         data-index="${index}"
+                        style="object-position: ${position};"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     <div class="admin-image-controls absolute bottom-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
@@ -613,7 +619,8 @@
             const img = document.getElementById("lightbox-image");
             const counter = document.getElementById("lightbox-counter");
             if (img && currentLightboxGallery.length > 0) {
-                img.src = currentLightboxGallery[currentLightboxIndex];
+                const item = currentLightboxGallery[currentLightboxIndex];
+                img.src = typeof item === 'string' ? item : item.url;
                 if (counter) {
                     counter.textContent = `${currentLightboxIndex + 1} / ${currentLightboxGallery.length}`;
                 }
@@ -879,6 +886,18 @@
                 let teamData = data.team;
                 if (Array.isArray(teamData)) teamData = { team: teamData };
                 state.team = withDefaults(defaultTeam, teamData || {});
+
+                // Migrate old string arrays to object arrays for gallery and veeranatyam
+                if (Array.isArray(state.gallery.gallery)) {
+                    state.gallery.gallery = state.gallery.gallery.map(item => 
+                        typeof item === 'string' ? {url: item, position: 'center top'} : item
+                    );
+                }
+                if (Array.isArray(state.veeranatyam.veeranatyam)) {
+                    state.veeranatyam.veeranatyam = state.veeranatyam.veeranatyam.map(item => 
+                        typeof item === 'string' ? {url: item, position: 'center top'} : item
+                    );
+                }
 
                 // If there are any local backups (due to KV save failures), merge them so user edits aren't lost
                 try {
@@ -1252,7 +1271,7 @@
                     try {
                         showNotification("Uploading image...", "info");
                         const url = await uploadToR2(file, "gallery");
-                        galleryState.gallery.push(url);
+                        galleryState.gallery.push({url: url, position: "center top"});
                         renderGallery();
                         await saveSectionToKV("gallery");
                         showNotification("Image uploaded and added to gallery.", "success");
@@ -1265,7 +1284,7 @@
             } else {
                 const url = prompt("Enter image URL:");
                 if (!url) return;
-                galleryState.gallery.push(url.trim());
+                galleryState.gallery.push({url: url.trim(), position: "center top"});
                 renderGallery();
                 saveSectionToKV("gallery");
             }
@@ -1282,17 +1301,28 @@
                 return;
             }
 
+            const currentItem = galleryState.gallery[index];
+            const currentUrl = typeof currentItem === 'string' ? currentItem : currentItem.url;
+            const currentPosition = typeof currentItem === 'object' && currentItem.position ? currentItem.position : 'center top';
+
             const choice = prompt(
-                "Type 1 to change URL, or 2 to upload a new local photo.",
+                "Type 1 to change URL, 2 to upload a new local photo, or 3 to adjust position (top, center, bottom).",
                 "2"
             );
             if (!choice) return;
 
             if (choice.trim() === "1") {
-                const currentUrl = galleryState.gallery[index];
                 const url = prompt("Enter new image URL:", currentUrl);
                 if (!url) return;
-                galleryState.gallery[index] = url.trim();
+                const newItem = {url: url.trim(), position: currentPosition};
+                galleryState.gallery[index] = newItem;
+                renderGallery();
+                saveSectionToKV("gallery");
+            } else if (choice.trim() === "3") {
+                const position = prompt("Enter position (e.g., 'center top', 'center center', 'center bottom'):", currentPosition);
+                if (!position) return;
+                const newItem = {url: currentUrl, position: position.trim()};
+                galleryState.gallery[index] = newItem;
                 renderGallery();
                 saveSectionToKV("gallery");
             } else {
@@ -1304,7 +1334,8 @@
                     try {
                         showNotification("Uploading image...", "info");
                         const url = await uploadToR2(file, "gallery");
-                        galleryState.gallery[index] = url;
+                        const newItem = {url: url, position: currentPosition};
+                        galleryState.gallery[index] = newItem;
                         renderGallery();
                         await saveSectionToKV("gallery");
                         showNotification("Image updated.", "success");
@@ -1361,7 +1392,7 @@
                     try {
                         showNotification("Uploading image...", "info");
                         const url = await uploadToR2(file, "veeranatyam");
-                        veeranatyamState.veeranatyam.push(url);
+                        veeranatyamState.veeranatyam.push({url: url, position: "center top"});
                         renderVeeranatyam();
                         await saveSectionToKV("veeranatyam");
                         showNotification("Image uploaded and added to Veeranatyam.", "success");
@@ -1374,7 +1405,7 @@
             } else {
                 const url = prompt("Enter image URL:");
                 if (!url) return;
-                veeranatyamState.veeranatyam.push(url.trim());
+                veeranatyamState.veeranatyam.push({url: url.trim(), position: "center top"});
                 renderVeeranatyam();
                 saveSectionToKV("veeranatyam");
             }
@@ -1391,17 +1422,28 @@
                 return;
             }
 
+            const currentItem = veeranatyamState.veeranatyam[index];
+            const currentUrl = typeof currentItem === 'string' ? currentItem : currentItem.url;
+            const currentPosition = typeof currentItem === 'object' && currentItem.position ? currentItem.position : 'center top';
+
             const choice = prompt(
-                "Type 1 to change URL, or 2 to upload a new local photo.",
+                "Type 1 to change URL, 2 to upload a new local photo, or 3 to adjust position (top, center, bottom).",
                 "2"
             );
             if (!choice) return;
 
             if (choice.trim() === "1") {
-                const currentUrl = veeranatyamState.veeranatyam[index];
                 const url = prompt("Enter new image URL:", currentUrl);
                 if (!url) return;
-                veeranatyamState.veeranatyam[index] = url.trim();
+                const newItem = {url: url.trim(), position: currentPosition};
+                veeranatyamState.veeranatyam[index] = newItem;
+                renderVeeranatyam();
+                saveSectionToKV("veeranatyam");
+            } else if (choice.trim() === "3") {
+                const position = prompt("Enter position (e.g., 'center top', 'center center', 'center bottom'):", currentPosition);
+                if (!position) return;
+                const newItem = {url: currentUrl, position: position.trim()};
+                veeranatyamState.veeranatyam[index] = newItem;
                 renderVeeranatyam();
                 saveSectionToKV("veeranatyam");
             } else {
@@ -1413,7 +1455,8 @@
                     try {
                         showNotification("Updating image...", "info");
                         const url = await uploadToR2(file, "veeranatyam");
-                        veeranatyamState.veeranatyam[index] = url;
+                        const newItem = {url: url, position: currentPosition};
+                        veeranatyamState.veeranatyam[index] = newItem;
                         renderVeeranatyam();
                         await saveSectionToKV("veeranatyam");
                         showNotification("Image updated.", "success");
