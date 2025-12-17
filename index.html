@@ -797,9 +797,25 @@
                 card.className = "card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
 
                 const imageHtml = member.photo ?
-                    `<img id="team-photo-${index}" loading="lazy" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
-                    `<div class="h-56 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
+                    `<div class="relative">
+                        <img id="team-photo-${index}" loading="lazy" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-56 object-cover" style="object-position: ${member.position || 'center top'};" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">
+                        <div class="admin-image-controls absolute top-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <button type="button"
+                                class="px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                onclick="window.editTeamPhoto(${index})">
+                                <i class="fa-solid fa-pen mr-1"></i>Edit Photo
+                            </button>
+                        </div>
+                    </div>` :
+                    `<div class="h-56 bg-gradient-to-br flex items-center justify-center relative" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
                         <span class="text-6xl text-white/30">👤</span>
+                        <div class="admin-image-controls absolute top-3 right-3 space-x-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                            <button type="button"
+                                class="px-3 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                                onclick="window.editTeamPhoto(${index})">
+                                <i class="fa-solid fa-pen mr-1"></i>Add Photo
+                            </button>
+                        </div>
                     </div>`;
 
                 card.innerHTML = `
@@ -896,6 +912,12 @@
                 if (Array.isArray(state.veeranatyam.veeranatyam)) {
                     state.veeranatyam.veeranatyam = state.veeranatyam.veeranatyam.map(item => 
                         typeof item === 'string' ? {url: item, position: 'center top'} : item
+                    );
+                }
+                // Migrate team members to include position if photo exists
+                if (Array.isArray(state.team.team)) {
+                    state.team.team = state.team.team.map(member => 
+                        member.photo && !member.position ? {...member, position: 'center top'} : member
                     );
                 }
 
@@ -1463,6 +1485,63 @@
                     } catch (err) {
                         console.error(err);
                         showNotification("Image update failed.", "error");
+                    }
+                };
+                galleryFileInputEl.click();
+            }
+        };
+
+        window.editTeamPhoto = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit team photos.", "info");
+                return;
+            }
+
+            const teamState = state.team || (state.team = { ...defaultTeam });
+            if (!Array.isArray(teamState.team) || index < 0 || index >= teamState.team.length) {
+                return;
+            }
+
+            const member = teamState.team[index];
+            const currentPhoto = member.photo || '';
+            const currentPosition = member.position || 'center top';
+
+            const choice = prompt(
+                "Type 1 to change photo URL, 2 to upload a new local photo, or 3 to adjust position (top, center, bottom).",
+                "2"
+            );
+            if (!choice) return;
+
+            if (choice.trim() === "1") {
+                const url = prompt("Enter new photo URL:", currentPhoto);
+                if (!url) return;
+                member.photo = url.trim();
+                if (!member.position) member.position = 'center top';
+                renderTeam();
+                saveSectionToKV("team");
+            } else if (choice.trim() === "3") {
+                const position = prompt("Enter position (e.g., 'center top', 'center center', 'center bottom'):", currentPosition);
+                if (!position) return;
+                member.position = position.trim();
+                renderTeam();
+                saveSectionToKV("team");
+            } else {
+                if (!galleryFileInputEl) {
+                    showNotification("File input not ready.", "error");
+                    return;
+                }
+                pendingGalleryUploadAction = async (file) => {
+                    try {
+                        showNotification("Uploading photo...", "info");
+                        const url = await uploadToR2(file, "team");
+                        member.photo = url;
+                        if (!member.position) member.position = 'center top';
+                        renderTeam();
+                        await saveSectionToKV("team");
+                        showNotification("Photo updated.", "success");
+                    } catch (err) {
+                        console.error(err);
+                        showNotification("Photo upload failed.", "error");
                     }
                 };
                 galleryFileInputEl.click();
