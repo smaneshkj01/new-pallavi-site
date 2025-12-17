@@ -360,10 +360,34 @@ body.editing .admin-image-controls {
     overflow: hidden;
 }
 
-.hero-image-wrapper img {
+.hero-placeholder {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(14px) scale(1.06);
+    transition: opacity .45s ease, filter .45s ease;
+}
+
+.hero-img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity .35s ease, transform .5s ease;
+}
+
+.hero-image-wrapper.loaded .hero-placeholder {
+    opacity: 0;
+    filter: blur(0px) scale(1);
+}
+
+.hero-image-wrapper.loaded .hero-img {
+    opacity: 1;
+    transform: none;
 }
 
 /* Accessibility & focus styles */
