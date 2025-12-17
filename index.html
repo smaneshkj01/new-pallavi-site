@@ -469,7 +469,7 @@
 
             gallery.forEach((url, index) => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "gallery-wrapper card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
+                wrapper.className = "gallery-wrapper card-hover group h-80 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
                 // Small generic SVG placeholder data URL to act as LQIP
                 const placeholderData = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='100%' height='100%' fill='%23cbd5e1'/></svg>`;
@@ -530,7 +530,7 @@
 
             veeranatyam.forEach((url, index) => {
                 const wrapper = document.createElement("div");
-                wrapper.className = "gallery-wrapper card-hover group h-72 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
+                wrapper.className = "gallery-wrapper card-hover group h-80 bg-gray-300 rounded-xl overflow-hidden relative shadow-lg hover:shadow-2xl";
 
                 // Small generic SVG placeholder data URL to act as LQIP
                 const placeholderData = `data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><rect width='100%' height='100%' fill='%23cbd5e1'/></svg>`;
@@ -790,8 +790,8 @@
                 card.className = "card-hover bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl";
 
                 const imageHtml = member.photo ?
-                    `<img id="team-photo-${index}" loading="lazy" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
-                    `<div class="h-48 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
+                    `<img id="team-photo-${index}" loading="lazy" src="${member.photo}" alt="${member.name || 'Team member'}" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x300/0f172a/ffffff?text=Image+Missing'">` :
+                    `<div class="h-56 bg-gradient-to-br flex items-center justify-center" style="background: linear-gradient(135deg, ${member.gradientFrom}, ${member.gradientTo});">
                         <span class="text-6xl text-white/30">👤</span>
                     </div>`;
 
