@@ -62,6 +62,8 @@ body.editing .editable {
 
 body.editing .admin-image-controls {
     display: flex;
+    opacity: 1 !important;
+    z-index: 10;
 }
 
 /* Image popup styles */
