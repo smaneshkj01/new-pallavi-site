@@ -1679,15 +1679,10 @@
         };
 
         window.toggleEditMode = async () => {
-            // Temporarily bypass admin login for testing
             if (!adminLoggedIn) {
-                adminLoggedIn = true; // Temporarily set for testing
-                const statusIcon = document.getElementById("admin-status-icon");
-                if (statusIcon) {
-                    statusIcon.classList.remove("text-red-500");
-                    statusIcon.classList.add("text-green-500");
-                    statusIcon.setAttribute("title", "Admin Logged In (Test Mode)");
-                }
+                const modal = document.getElementById("login-modal");
+                if (modal) modal.style.display = "flex";
+                return;
             }
 
             if (isEditing) {
