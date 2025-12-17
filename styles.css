@@ -15,6 +15,13 @@
     }
 }
 
+/* Animated background gradient */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 /* Dark mode variables */
 @media (prefers-color-scheme: dark) {
     :root {
@@ -22,7 +29,9 @@
         --secondary-hex: #1e293b;
     }
     body {
-        background-color: #0f172a;
+        background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #0f172a);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
         color: #f1f5f9;
     }
     .card {
@@ -38,6 +47,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(-45deg, #f8fafc, #e2e8f0, #cbd5e1, #f8fafc);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
 }
 
 body.editing .editable {
