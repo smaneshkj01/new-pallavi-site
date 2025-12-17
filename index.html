@@ -1229,11 +1229,10 @@
 
         // ==== GALLERY ADMIN ACTIONS ====
         window.addGalleryImage = () => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to add images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add images.", "info");
+                return;
+            }
 
             const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
             if (!Array.isArray(galleryState.gallery)) {
@@ -1273,11 +1272,10 @@
         };
 
         window.editGalleryImage = (index) => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to edit images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit images.", "info");
+                return;
+            }
 
             const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
             if (!Array.isArray(galleryState.gallery) || index < 0 || index >= galleryState.gallery.length) {
@@ -1320,11 +1318,10 @@
         };
 
         window.removeGalleryImage = (index) => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to remove images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove images.", "info");
+                return;
+            }
 
             const galleryState = state.gallery || (state.gallery = { ...defaultGallery });
 
@@ -1341,11 +1338,10 @@
 
         // ==== VEERANATYAM ADMIN ACTIONS ====
         window.addVeeranatyamImage = () => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to add images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to add images.", "info");
+                return;
+            }
 
             const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
             if (!Array.isArray(veeranatyamState.veeranatyam)) {
@@ -1385,11 +1381,10 @@
         };
 
         window.editVeeranatyamImage = (index) => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to edit images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to edit images.", "info");
+                return;
+            }
 
             const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
             if (!Array.isArray(veeranatyamState.veeranatyam) || index < 0 || index >= veeranatyamState.veeranatyam.length) {
@@ -1432,11 +1427,10 @@
         };
 
         window.removeVeeranatyamImage = (index) => {
-            // Temporarily bypass admin login check for testing
-            // if (!adminLoggedIn || !isEditing) {
-            //     showNotification("Enable admin edit mode to remove images.", "info");
-            //     return;
-            // }
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to remove images.", "info");
+                return;
+            }
 
             const veeranatyamState = state.veeranatyam || (state.veeranatyam = { ...defaultVeeranatyam });
 
@@ -1703,15 +1697,10 @@
         };
 
         window.toggleEditMode = async () => {
-            // Temporarily bypass admin login for testing
             if (!adminLoggedIn) {
-                adminLoggedIn = true; // Temporarily set for testing
-                const statusIcon = document.getElementById("admin-status-icon");
-                if (statusIcon) {
-                    statusIcon.classList.remove("text-red-500");
-                    statusIcon.classList.add("text-green-500");
-                    statusIcon.setAttribute("title", "Admin Logged In (Test Mode)");
-                }
+                const modal = document.getElementById("login-modal");
+                if (modal) modal.style.display = "flex";
+                return;
             }
 
             if (isEditing) {
