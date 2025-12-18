@@ -413,8 +413,12 @@
                 const iconClass = ev.iconClass || "fa-regular fa-calendar";
                 const badgeClass = ev.badgeClass || "bg-gray-500 text-white";
 
+                // Check if event has a photo
+                const hasPhoto = ev.photo && ev.photo.trim();
+
                 card.innerHTML = `
                     <div class="px-6 py-8 sm:p-8">
+                        ${hasPhoto ? `<div class="mb-6"><img src="${ev.photo}" alt="${ev.title}" class="w-full h-[500px] object-cover rounded-lg shadow-md" onerror="this.style.display='none'"></div>` : ''}
                         <div class="flex items-start mb-4">
                             <div class="flex-shrink-0">
                                 <div class="flex items-center justify-center h-12 w-12 rounded-lg text-white" style="background: linear-gradient(135deg, var(--primary-hex), #d84040);">
@@ -450,6 +454,11 @@
                                 <i class="fa-solid fa-calendar mr-2"></i>${ev.date || ""}
                             </span>
                             <div class="admin-image-controls space-x-2 text-xs">
+                                <button type="button"
+                                    class="px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600 transition-colors"
+                                    onclick="window.uploadEventPhoto(${index})">
+                                    <i class="fa-solid fa-camera mr-1"></i>${hasPhoto ? 'Edit' : 'Add'} Photo
+                                </button>
                                 <button type="button"
                                     class="px-3 py-1 rounded bg-blue-500 text-white hover:bg-blue-600 transition-colors"
                                     onclick="window.editEventIcon(${index})">
@@ -1242,6 +1251,35 @@
                 }
             };
             teamFileInputEl.click();
+        };
+
+        window.uploadEventPhoto = (index) => {
+            if (!adminLoggedIn || !isEditing) {
+                showNotification("Enable admin edit mode to upload event photos.", "info");
+                return;
+            }
+
+            if (!galleryFileInputEl) {
+                showNotification("File input not ready.", "error");
+                return;
+            }
+
+            pendingGalleryUploadAction = async (file) => {
+                try {
+                    showNotification("Uploading event photo...", "info");
+                    const url = await uploadToR2(file, "events");
+                    const eventsState = state.events || (state.events = { ...defaultEvents });
+                    if (!Array.isArray(eventsState.events)) eventsState.events = [];
+                    eventsState.events[index] = { ...(eventsState.events[index] || {}), photo: url };
+                    renderEvents();
+                    await saveSectionToKV("events");
+                    showNotification("Event photo uploaded successfully!", "success");
+                } catch (err) {
+                    console.error(err);
+                    showNotification("Event photo upload failed.", "error");
+                }
+            };
+            galleryFileInputEl.click();
         };
 
         window.resetDefaults = () => {
